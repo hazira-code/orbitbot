@@ -15,10 +15,12 @@ import {
   Code, 
   Play, 
   LogOut,
-  Info
+  Info,
+  FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Rule, Message, PipelineStep } from "./types";
+import PortfolioDoc from "./components/PortfolioDoc";
 
 const INITIAL_RULES: Rule[] = [
   { id: "1", trigger: "hello", response: "Hello there! How can I help you today?" },
@@ -64,7 +66,7 @@ export default function App() {
     const saved = localStorage.getItem("chatbot_hybrid");
     return saved ? JSON.parse(saved) === "true" : true;
   });
-  const [selectedView, setSelectedView] = useState<'gui' | 'terminal'>('terminal');
+  const [selectedView, setSelectedView] = useState<'gui' | 'terminal' | 'portfolio'>('terminal');
   const [isLoopTerminated, setIsLoopTerminated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -350,14 +352,27 @@ export default function App() {
               <MessageSquare className="w-3.5 h-3.5" />
               Modern Chat
             </button>
+            <button
+              onClick={() => setSelectedView('portfolio')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all ${selectedView === 'portfolio' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+              id="btn-view-portfolio"
+            >
+              <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              Project Report
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Workspace Frame */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* LEFT COLUMN: Input Interface (Terminal or Chat GUI) - takes 7 shares */}
+        {selectedView === 'portfolio' ? (
+          <div className="col-span-12">
+            <PortfolioDoc />
+          </div>
+        ) : (
+          <>
+            {/* LEFT COLUMN: Input Interface (Terminal or Chat GUI) - takes 7 shares */}
         <section className="lg:col-span-7 flex flex-col gap-6" id="left-workspace-column">
           
           {/* Active View Container */}
@@ -776,7 +791,8 @@ export default function App() {
             </div>
           </div>
         </section>
-
+          </>
+        )}
       </main>
 
       {/* Educational Footer Banner */}

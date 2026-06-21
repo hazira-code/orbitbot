@@ -1,0 +1,6 @@
+{
+  "name": "Rule-Based AI Chatbot",
+  "description": "An interactive rule-based chatbot simulator showcasing deterministic logic engines, O(1) hash map vocabulary lookups, input sanitization, and fallback strategies with optional hybrid generative AI routing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

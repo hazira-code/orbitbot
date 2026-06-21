@@ -16,7 +16,18 @@ import {
   Play, 
   LogOut,
   Info,
-  FileText
+  Layers,
+  ChevronRight,
+  ShieldCheck,
+  Send,
+  User,
+  Sliders,
+  FileText,
+  Clock,
+  ExternalLink,
+  ChevronLeft,
+  Menu,
+  Database
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Rule, Message, PipelineStep } from "./types";
@@ -24,12 +35,12 @@ import PortfolioDoc from "./components/PortfolioDoc";
 
 const INITIAL_RULES: Rule[] = [
   { id: "1", trigger: "hello", response: "Hello there! How can I help you today?" },
-  { id: "2", trigger: "hi", response: "Hey! Nice to chat with you. Ask me anything!" },
-  { id: "3", trigger: "bye", response: "Goodbye! Hope you had a great session." },
-  { id: "4", trigger: "goodbye", response: "Farewell! Have a wonderful day!" },
+  { id: "2", trigger: "hi", response: "Hey! Nice to chat with you. Ask me any predefined question!" },
+  { id: "3", trigger: "bye", response: "Goodbye! Hope you had a great session with the logic engine." },
+  { id: "4", trigger: "goodbye", response: "Farewell! Have a wonderful, productive day!" },
   { id: "5", trigger: "how are you", response: "I am a deterministic system running smoothly at 100% capacity." },
-  { id: "6", trigger: "who are you", response: "I am a Rule-Based AI Chatbot showing the precision of direct key-value matching." },
-  { id: "7", trigger: "help", response: "I support direct matches for: hello, hi, bye, goodbye, 'how are you', 'who are you', and 'joke'. You can also toggle Hybrid Mode to let me call Gemini when no rule matches!" },
+  { id: "6", trigger: "who are you", response: "I am a Rule-Based AI Chatbot showcasing constant O(1) matching speed." },
+  { id: "7", trigger: "help", response: "I support direct matches for: hello, hi, bye, goodbye, 'how are you', 'who are you', and 'joke'. Toggle Hybrid AI to run Gemini fallback!" },
   { id: "8", trigger: "joke", response: "Why do programmers wear glasses? Because they can't C#!" }
 ];
 
@@ -53,7 +64,7 @@ export default function App() {
       {
         id: "welcome-msg",
         sender: "bot",
-        text: "System initialized. Rule-Based Chatbot is running in a continuous 'while True' loop. Type any message to run the logic engine, or write 'exit' to break the loop.",
+        text: "System initialized. Rule-Based AI Chatbot is running in a continuous 'while True' interactive loop. Type any message below to trigger the logic matching sequence, or use 'exit' to break the loop gracefully.",
         timestamp: new Date().toLocaleTimeString(),
         type: "rule",
         matched: true
@@ -66,9 +77,10 @@ export default function App() {
     const saved = localStorage.getItem("chatbot_hybrid");
     return saved ? JSON.parse(saved) === "true" : true;
   });
-  const [selectedView, setSelectedView] = useState<'gui' | 'terminal' | 'portfolio'>('terminal');
+  const [selectedView, setSelectedView] = useState<'gui' | 'terminal' | 'portfolio'>('gui');
   const [isLoopTerminated, setIsLoopTerminated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Rule editor form state
   const [newTrigger, setNewTrigger] = useState("");
@@ -83,23 +95,19 @@ export default function App() {
     { name: "4. Output Strategy", value: "None", status: "pending", description: "Determining whether to fire deterministic answer, LLM, or fallback" }
   ]);
 
-  const [simulatedTimeOffset, setSimulatedTimeOffset] = useState<number | null>(null);
-
   // Refs for scroll auto-scrollers
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Sync rules to localStorage
+  // Sync state to localStorage
   useEffect(() => {
     localStorage.setItem("chatbot_rules", JSON.stringify(rules));
   }, [rules]);
 
-  // Sync hybrid toggle to localStorage
   useEffect(() => {
     localStorage.setItem("chatbot_hybrid", String(hybridMode));
   }, [hybridMode]);
 
-  // Sync chat to localStorage
   useEffect(() => {
     localStorage.setItem("chatbot_chat", JSON.stringify(chatHistory));
   }, [chatHistory]);
@@ -121,9 +129,8 @@ export default function App() {
     if (isLoopTerminated) return;
 
     // Add user message to history
-    const userMessageId = `user-${Date.now()}`;
     const userMsgObj: Message = {
-      id: userMessageId,
+      id: `user-${Date.now()}`,
       sender: 'user',
       text: inputMsg,
       timestamp: new Date().toLocaleTimeString(),
@@ -144,7 +151,6 @@ export default function App() {
     ]);
 
     try {
-      // Execute the request to our Express backend
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -161,7 +167,6 @@ export default function App() {
 
       const result = await response.json();
 
-      // Check loop closure command (break condition)
       if (result.isExit) {
         setIsLoopTerminated(true);
       }
@@ -191,22 +196,21 @@ export default function App() {
         { 
           name: "4. Output Strategy", 
           value: result.type === "ai" 
-            ? "Gemini AI Helper Backfill" 
+            ? "Gemini Backfill" 
             : result.type === "simulated_ai" 
-              ? "Simulated AI Backfill" 
+              ? "Simulated AI" 
               : result.type === "rule" 
-                ? "Predefined Deterministic Match" 
-                : "Fallback Error Response", 
+                ? "Deterministic" 
+                : "Fallback", 
           status: result.type === "fallback" ? "error" : "info", 
           description: result.type === "ai" 
             ? `Passed to LLM (Flexibility fallback) in ${result.executionTimeMs}ms` 
             : result.type === "simulated_ai"
               ? `Passed to simulated LLM because API Key is unconfigured.`
-              : `Fired instant direct response in ${result.executionTimeMs || '0'}ms.` 
+              : `Fired instant direct response in ${result.executionTimeMs || '0.01'}ms.` 
         }
       ]);
 
-      // Add chatbot response to history
       const botMsgObj: Message = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
@@ -245,12 +249,12 @@ export default function App() {
     const answer = newResponse.trim();
 
     if (!term || !answer) {
-      setEditingError("Both key trigger and output response fields are required.");
+      setEditingError("Both trigger and output fields are required.");
       return;
     }
 
     if (rules.some(r => r.trigger.trim().toLowerCase() === term)) {
-      setEditingError(`The key definition for "${term}" already exists inside your O(1) look-up map.`);
+      setEditingError(`Trigger key "${term}" already exists.`);
       return;
     }
 
@@ -270,12 +274,10 @@ export default function App() {
     setRules(prev => prev.filter(r => r.id !== id));
   };
 
-  // Reset to default dictionary rules
   const handleResetToDefaults = () => {
     setRules(INITIAL_RULES);
   };
 
-  // Restart continuous Loop cycle
   const handleRestartLoop = () => {
     setIsLoopTerminated(false);
     setChatHistory(prev => [
@@ -283,19 +285,18 @@ export default function App() {
       {
         id: `system-reset-${Date.now()}`,
         sender: "system",
-        text: "--- Continuous infinite loop restarted successfully. System status: ACTIVE. Awaiting statements... ---",
+        text: "Continuous infinite loop restarted successfully. System status: ACTIVE. Awaiting statements...",
         timestamp: new Date().toLocaleTimeString()
       }
     ]);
   };
 
-  // Clear chat log entirely
   const handleClearHistory = () => {
     setChatHistory([
       {
         id: `welcome-${Date.now()}`,
         sender: "bot",
-        text: "Chat record flushed. System running smoothly. Continuous while loop waiting...",
+        text: "Conversation logs cleared. System is active and waiting for inputs in standard 'while True' mode.",
         timestamp: new Date().toLocaleTimeString(),
         type: "rule",
         matched: true
@@ -304,189 +305,313 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 selection:bg-indigo-500 selection:text-white antialiased flex flex-col custom-scrollbar">
-      {/* Upper Navigation Header */}
-      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-lg sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-          <div className="bg-indigo-600 p-2 rounded-xl text-indigo-100 shadow-md shadow-indigo-600/10">
-            <Cpu className="w-6 h-6 animate-pulse" />
+    <div className="min-h-screen bg-[#171717] font-sans text-[#ececec] selection:bg-neutral-700 selection:text-white antialiased flex flex-row overflow-hidden">
+      
+      {/* SIDEBAR: Left Control Center (ChatGPT Style) */}
+      <aside 
+        className={`bg-[#0d0d0d] text-neutral-300 w-80 shrink-0 border-r border-[#2f2f2f] flex flex-col justify-between transition-all duration-300 z-40 fixed h-full lg:relative ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:border-r-0 lg:overflow-hidden'
+        }`}
+      >
+        <div className="flex flex-col h-full overflow-y-auto custom-scrollbar p-3.5 space-y-6">
+          {/* Header context */}
+          <div className="flex items-center justify-between border-b border-[#212121] pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="bg-indigo-600/20 text-indigo-400 p-2 rounded-lg border border-indigo-500/10">
+                <Cpu className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white tracking-tight">Logic Engine Control</h2>
+                <div className="flex items-center gap-1">
+                  <span className={`w-2 h-2 rounded-full ${isLoopTerminated ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                  <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-neutral-500">
+                    {isLoopTerminated ? "LOOP HALTED" : "LOOP ACTIVE"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden text-neutral-400 hover:text-white p-1 hover:bg-[#212121] rounded"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              Rule-Based AI Chatbot
-              <span className="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono">
-                Project 1
+
+          {/* New Match Register Form */}
+          <div className="space-y-3 bg-[#171717] border border-[#2f2f2f] rounded-xl p-3 shadow-inner">
+            <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2 border-b border-[#212121]">
+              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              Register Predefined Trigger
+            </span>
+            
+            <form onSubmit={handleAddRule} className="space-y-2">
+              <div>
+                <label className="text-[10px] text-neutral-400 block mb-1">Key Match Trigger</label>
+                <input
+                  type="text"
+                  placeholder="e.g. status"
+                  value={newTrigger}
+                  onChange={(e) => setNewTrigger(e.target.value)}
+                  className="w-full bg-[#0d0d0d] border border-[#2f2f2f] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-neutral-600"
+                />
+              </div>
+              
+              <div>
+                <label className="text-[10px] text-neutral-400 block mb-1">Response Value</label>
+                <textarea
+                  placeholder="System response string"
+                  value={newResponse}
+                  onChange={(e) => setNewResponse(e.target.value)}
+                  rows={2}
+                  className="w-full bg-[#0d0d0d] border border-[#2f2f2f] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-neutral-600 resize-none text-neutral-300"
+                />
+              </div>
+
+              {editingError && (
+                <p className="text-[10px] text-rose-400 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  {editingError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add to Hash Map
+              </button>
+            </form>
+          </div>
+
+          {/* Active Rules Vocabulary list */}
+          <div className="space-y-2 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between pb-1">
+              <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">
+                Vocabulary List ({rules.length})
               </span>
-            </h1>
-            <p className="text-xs text-slate-400 font-medium">
-              Deterministic Logic Engine Simulator &bull; Hash Map Lookups $O(1)$
-            </p>
+              <button 
+                onClick={handleResetToDefaults}
+                className="text-[10px] text-indigo-400 hover:text-indigo-300 transition flex items-center gap-0.5 cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                Reset Defaults
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
+              {rules.map((rule) => (
+                <div 
+                  key={rule.id}
+                  className="group flex items-center justify-between bg-[#171717] hover:bg-[#212121] border border-[#232323] hover:border-[#2f2f2f] p-2.5 rounded-xl transition"
+                >
+                  <div className="min-w-0 flex-1 pr-2">
+                    <span className="text-xs font-mono font-bold text-white bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/10">
+                      /{rule.trigger}
+                    </span>
+                    <p className="text-[10px] text-neutral-400 mt-1 truncate" title={rule.response}>
+                      {rule.response}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteRule(rule.id)}
+                    className="text-neutral-500 hover:text-rose-400 p-1 rounded transition opacity-0 group-hover:opacity-100 cursor-pointer"
+                    title="Delete trigger"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              {rules.length === 0 && (
+                <p className="text-xs text-neutral-500 italic text-center py-4">No predefined rules configured.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Statistics card */}
+          <div className="bg-[#171717] border border-[#2f2f2f] rounded-xl p-3.5 space-y-2">
+            <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono block">Logic Complexity</span>
+            <div className="grid grid-cols-2 gap-2 text-center text-xs">
+              <div className="bg-[#0d0d0d] p-2 rounded-lg border border-[#212121]">
+                <span className="text-[10px] text-neutral-500 block">Lookup</span>
+                <strong className="text-emerald-400 font-mono">O(1)</strong>
+              </div>
+              <div className="bg-[#0d0d0d] p-2 rounded-lg border border-[#212121]">
+                <span className="text-[10px] text-neutral-500 block">Sanitizer</span>
+                <strong className="text-white font-mono">2-Step</strong>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 text-xs text-slate-300">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isLoopTerminated ? 'bg-red-400' : 'bg-emerald-400'} opacity-75`}></span>
-              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isLoopTerminated ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+        {/* Footer info area */}
+        <div className="p-3.5 border-t border-[#2f2f2f] bg-[#090909] text-xs space-y-2">
+          <div className="flex items-center justify-between text-neutral-400 text-[11px]">
+            <span className="flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              Secure Logic
             </span>
-            <span className="font-mono uppercase font-bold text-[10px] tracking-wider">
-              {isLoopTerminated ? "LOOP BROKEN (EXIT)" : "LOOP ACTIVE (while True)"}
-            </span>
+            <span className="font-mono text-[10px] text-neutral-500">v1.1</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* CHAT AREA: Central workspace */}
+      <section className="flex-1 flex flex-col justify-between overflow-hidden relative bg-[#212121]">
+        
+        {/* Upper Dashboard Tab Header */}
+        <header className="border-b border-[#2f2f2f] bg-[#171717] px-4 py-3 flex items-center justify-between shrink-0 z-20">
+          <div className="flex items-center gap-3">
+            {!sidebarOpen && (
+              <button 
+                onClick={() => setSidebarOpen(true)}
+                className="text-neutral-300 hover:text-white p-1 hover:bg-[#2f2f2f] rounded-lg transition cursor-pointer"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            )}
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                  System 2 Logic Engine
+                  <span className="text-[10px] tracking-wide font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-400/20 px-1.5 py-0.5 rounded">
+                    DETERMINISTIC
+                  </span>
+                </h1>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-800 p-1 rounded-lg border border-slate-700/60">
-            <button
-              onClick={() => setSelectedView('terminal')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all ${selectedView === 'terminal' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
-              id="btn-view-terminal"
-            >
-              <TerminalIcon className="w-3.5 h-3.5" />
-              Terminal REPL
-            </button>
+          {/* Upper Tabs: Terminal, ChatGPT UI, Project Doc */}
+          <div className="flex items-center gap-1 bg-[#0d0d0d] p-1 rounded-xl border border-[#2f2f2f]">
             <button
               onClick={() => setSelectedView('gui')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all ${selectedView === 'gui' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
-              id="btn-view-gui"
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedView === 'gui'
+                  ? 'bg-[#212121] text-white shadow'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
             >
-              <MessageSquare className="w-3.5 h-3.5" />
-              Modern Chat
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+              ChatGPT Chat
             </button>
+            
+            <button
+              onClick={() => setSelectedView('terminal')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedView === 'terminal'
+                  ? 'bg-[#212121] text-white shadow'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <TerminalIcon className="w-3.5 h-3.5 text-indigo-400" />
+              Python Shell
+            </button>
+
             <button
               onClick={() => setSelectedView('portfolio')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-all ${selectedView === 'portfolio' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
-              id="btn-view-portfolio"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedView === 'portfolio'
+                  ? 'bg-[#212121] text-white shadow'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
             >
-              <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <FileText className="w-3.5 h-3.5 text-amber-400" />
               Project Report
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Workspace Frame */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {selectedView === 'portfolio' ? (
-          <div className="col-span-12">
-            <PortfolioDoc />
-          </div>
-        ) : (
-          <>
-            {/* LEFT COLUMN: Input Interface (Terminal or Chat GUI) - takes 7 shares */}
-        <section className="lg:col-span-7 flex flex-col gap-6" id="left-workspace-column">
+        {/* Central main viewport */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 bg-[#212121] flex flex-col">
           
-          {/* Active View Container */}
-          <div className="border border-slate-800 rounded-2xl bg-slate-900/40 shadow-xl overflow-hidden flex-1 flex flex-col min-h-[480px]">
-            {/* Window Header */}
-            <div className="bg-slate-900/95 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-rose-500"></span>
-                  <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-                  <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-                </div>
-                <span className="text-xs font-mono text-slate-400 ml-2 font-semibold">
-                  {selectedView === 'terminal' ? 'terminal_runtime_loop.py' : 'modern_chat_client.tsx'}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-4 text-xs font-mono">
-                <span className="text-slate-500">UTC: {new Date().toISOString().substring(11,19)}</span>
-                <button 
-                  onClick={handleClearHistory}
-                  title="Clear Screen logs"
-                  className="text-slate-400 hover:text-indigo-400 transition"
-                  id="btn-clear-logs"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                </button>
-              </div>
+          {selectedView === 'portfolio' ? (
+            <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in py-4">
+              <PortfolioDoc />
             </div>
-
-            {/* View Viewports */}
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex flex-col justify-between bg-slate-950/80 relative">
+          ) : (
+            <div className="flex-1 w-full max-w-3xl mx-auto flex flex-col justify-between py-2">
               
-              {/* Loop Broken Overlay Banner */}
-              {isLoopTerminated && (
-                <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center text-center p-6" id="loop-terminated-overlay">
-                  <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-full text-rose-500 mb-4 animate-bounce">
-                    <LogOut className="w-10 h-10" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2 font-mono">Loop Terminated via 'exit'</h3>
-                  <p className="text-sm text-slate-400 max-w-sm mb-6">
-                    The instruction <code className="bg-slate-800 px-1 py-0.5 rounded font-mono text-rose-400">break</code> was executed in the control flow. The continuous input cycle has terminated.
-                  </p>
-                  <button
-                    onClick={handleRestartLoop}
-                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-md shadow-indigo-600/20 cursor-pointer text-sm"
-                    id="btn-restart-loop"
-                  >
-                    <Play className="w-4 h-4fill" />
-                    Restart while True Loop
-                  </button>
-                </div>
-              )}
-
-              {/* TERMINAL VIEW */}
-              {selectedView === 'terminal' ? (
-                <div className="flex-1 flex flex-col font-mono text-sm leading-relaxed text-emerald-400" id="terminal-content">
-                  <div className="space-y-3 flex-1 mb-4">
-                    <div className="text-slate-500 text-xs border-b border-slate-900 pb-2 mb-4">
-                      Python 3.10.6 -- Interactive Deterministic Chatbot Cycle<br />
-                      Loaded {rules.length} hash map rules successfully. Fallback strategy is primed.
-                    </div>
-                    
-                    {chatHistory.map((msg, index) => {
-                      if (msg.sender === 'user') {
-                        return (
-                          <div key={msg.id} className="text-slate-200">
-                            <span className="text-indigo-400 text-xs font-semibold mr-1">You:</span>
-                            <span>{msg.text}</span>
-                          </div>
-                        );
-                      } else if (msg.sender === 'bot') {
-                        return (
-                          <div key={msg.id} className="pl-4 border-l-2 border-emerald-500/30 text-emerald-400 space-y-1">
-                            <div>{msg.text}</div>
-                            {msg.cleanInput && (
-                              <div className="text-[11px] text-slate-500 flex flex-wrap gap-x-3 gap-y-1 pt-1 border-t border-slate-900/60 mt-1">
-                                <span>[SANITIZED]: "{msg.cleanInput}"</span>
-                                <span>[STRATEGY]: {msg.type?.toUpperCase()}</span>
-                                {msg.matched && <span>[KEY]: "{msg.triggerUsed}"</span>}
-                                {msg.executionTimeMs !== undefined && <span>[LATENCY]: {msg.executionTimeMs}ms</span>}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div key={msg.id} className="text-amber-500 text-xs font-mono my-2 italic">
-                            {msg.text}
-                          </div>
-                        );
-                      }
-                    })}
-                    
-                    {isLoading && (
-                      <div className="text-slate-400 animate-pulse flex items-center gap-2">
-                        <span>$ python processing_input.py ...</span>
+              {/* Message Log viewport list */}
+              <div className="space-y-6 flex-1 mb-8">
+                
+                {chatHistory.length === 1 && (
+                  <div className="py-8 text-center space-y-6">
+                    <div className="flex justify-center">
+                      <div className="bg-[#171717] p-4 rounded-full border border-[#2f2f2f] shadow-lg">
+                        <Cpu className="w-10 h-10 text-indigo-400 animate-pulse" />
                       </div>
-                    )}
-                    <div ref={terminalEndRef} />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-xl font-bold text-white">How can I help you today?</h2>
+                      <p className="text-neutral-400 text-xs max-w-md mx-auto leading-relaxed">
+                        Test the rule-based logic engine. You can enter clean strings, trigger exact-matching rules with instant speed, choose exits to break standard terminal loops, or leverage hybrid AI.
+                      </p>
+                    </div>
+
+                    {/* Dynamic clickable prompt cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto pt-4 text-left">
+                      <button 
+                        onClick={() => handleSendMessage("  HeLLo  ")}
+                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                      >
+                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
+                          Test Case Sanitization
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                        <p className="text-[11px] text-neutral-400">Triggers string clean-ups for "  HeLLo  "</p>
+                      </button>
+
+                      <button 
+                        onClick={() => handleSendMessage("who are you")}
+                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                      >
+                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
+                          Identity Query
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                        <p className="text-[11px] text-neutral-400">Requests chatbot specification details</p>
+                      </button>
+
+                      <button 
+                        onClick={() => handleSendMessage("Tell me some other things?")}
+                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                      >
+                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
+                          Toggle Hybrid Mode Fallback
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                        <p className="text-[11px] text-neutral-400">Triggers Gemini generative answer cascade</p>
+                      </button>
+
+                      <button 
+                        onClick={() => handleSendMessage("exit")}
+                        className="bg-[#171717] hover:bg-rose-950/20 border border-[#2f2f2f] hover:border-rose-900/40 p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                      >
+                        <span className="text-xs font-bold text-white group-hover:text-rose-400 flex items-center justify-between">
+                          Trigger Kill Command
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                        <p className="text-[11px] text-neutral-400">Breaks Python standard interactive shell loop</p>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                /* GUI MESSAGE VIEWER */
-                <div className="flex-1 flex flex-col gap-4 mb-4" id="gui-content">
-                  <div className="flex-1 space-y-4">
-                    {chatHistory.map((msg) => {
+                )}
+
+                {/* REAL USER VS BOT CHAT CONTAINER (ChatGPT Style) */}
+                {selectedView === 'gui' ? (
+                  <div className="space-y-4">
+                    {chatHistory.map((msg, index) => {
                       const isUser = msg.sender === 'user';
                       const isSys = msg.sender === 'system';
-                      
+
                       if (isSys) {
                         return (
-                          <div key={msg.id} className="flex justify-center my-2 text-center">
-                            <span className="bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 font-mono px-3 py-1 rounded-full">
+                          <div key={msg.id} className="flex justify-center my-3">
+                            <span className="bg-[#171717] border border-[#2f2f2f] text-[10px] text-neutral-400 font-mono px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                              <Database className="w-3 h-3 text-indigo-400" />
                               {msg.text}
                             </span>
                           </div>
@@ -494,28 +619,59 @@ export default function App() {
                       }
 
                       return (
-                        <div
+                        <div 
                           key={msg.id}
-                          className={`flex gap-3 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}
+                          className={`flex items-start gap-4 p-4 rounded-xl transition-all ${
+                            isUser ? 'bg-transparent' : 'bg-[#171717] border border-[#2a2a2a]'
+                          }`}
                         >
-                          <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${isUser ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-900 text-slate-100 rounded-tl-none border border-slate-800'}`}>
-                            <p>{msg.text}</p>
-                            
+                          {/* Avatar icon */}
+                          <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-bold text-xs ${
+                            isUser 
+                              ? 'bg-neutral-700 text-white' 
+                              : 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20'
+                          }`}>
+                            {isUser ? <User className="w-4 h-4" /> : <Cpu className="w-4 h-4 text-indigo-400" />}
+                          </div>
+
+                          <div className="flex-1 space-y-2 min-w-0">
+                            {/* Header */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-white">
+                                {isUser ? "You" : "Deterministic Assistant"}
+                              </span>
+                              <span className="text-[10px] text-neutral-500 font-mono">
+                                {msg.timestamp}
+                              </span>
+                            </div>
+
+                            {/* Message text */}
+                            <div className="text-sm leading-relaxed text-[#ececec] whitespace-pre-wrap selection-highlight">
+                              {msg.text}
+                            </div>
+
+                            {/* Assistant tags and indicators */}
                             {!isUser && msg.type && (
-                              <div className="mt-2.5 pt-2 border-t border-slate-800/30 flex items-center gap-2 flex-wrap">
-                                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                                  msg.type === 'rule' 
-                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'
-                                    : msg.type === 'ai' 
-                                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/10' 
-                                      : msg.type === 'simulated_ai'
-                                        ? 'bg-sky-500/10 text-sky-400 border border-sky-500/10'
-                                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/10'
+                              <div className="pt-2 flex flex-wrap items-center gap-2">
+                                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
+                                  msg.type === 'rule'
+                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                                    : msg.type === 'ai' || msg.type === 'simulated_ai'
+                                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                      : 'bg-rose-500/10 text-rose-400 border border-rose-550/20'
                                 }`}>
-                                  {msg.type === 'rule' ? 'O(1) Exact Match' : msg.type === 'ai' || msg.type === 'simulated_ai' ? 'Hybrid AI response' : 'Fallback error'}
+                                  {msg.type === 'rule' 
+                                    ? `O(1) DIRECT KEY MATCH [${msg.triggerUsed}]`
+                                    : msg.type === 'ai' 
+                                      ? 'HYBRID GEMINI FALLBACK' 
+                                      : msg.type === 'simulated_ai'
+                                        ? 'SIMULATED AI FALLBACK' 
+                                        : 'GENERIC LOOP FALLBACK'}
                                 </span>
+                                
                                 {msg.executionTimeMs !== undefined && (
-                                  <span className="text-[10px] font-mono text-slate-500">
+                                  <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
                                     Latency: {msg.executionTimeMs}ms
                                   </span>
                                 )}
@@ -525,287 +681,236 @@ export default function App() {
                         </div>
                       );
                     })}
+
                     {isLoading && (
-                      <div className="flex gap-3 mr-auto items-center">
-                        <div className="bg-slate-900 p-3.5 rounded-2xl rounded-tl-none border border-slate-800 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.4s]"></span>
+                      <div className="bg-[#171717] border border-[#2a2a2a] flex items-start gap-4 p-4 rounded-xl leading-relaxed">
+                        <div className="w-8 h-8 rounded-full bg-indigo-600/15 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+                          <Cpu className="w-4 h-4 animate-spin text-indigo-400" />
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <span className="text-xs font-bold text-white block">Evaluating matching criteria...</span>
+                          <div className="flex gap-1 pt-1">
+                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce"></span>
+                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
+                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.4s]"></span>
+                          </div>
                         </div>
                       </div>
                     )}
                     <div ref={chatEndRef} />
                   </div>
+                ) : (
+                  
+                  /* TERMINAL STYLE PYTHON SHELLVIEW */
+                  <div className="bg-black/95 font-mono text-xs p-4 rounded-xl border border-[#2f2f2f] text-emerald-400 relative min-h-[380px] flex flex-col justify-between shadow-2xl">
+                    <div className="space-y-3.5 flex-1 overflow-y-auto custom-scrollbar mb-4">
+                      <div className="text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
+                        Python 3.10 Build #84729 - Deterministic Shell Interface<br />
+                        Listening on live std_in buffer stream... Enter 'exit' to break.
+                      </div>
+
+                      {chatHistory.map((msg) => {
+                        if (msg.sender === 'user') {
+                          return (
+                            <div key={msg.id} className="text-neutral-200">
+                              <span className="text-indigo-400 font-bold mr-1.5">You:</span>
+                              <span>{msg.text}</span>
+                            </div>
+                          );
+                        } else if (msg.sender === 'bot') {
+                          return (
+                            <div key={msg.id} className="text-emerald-400 pl-3 border-l border-emerald-500/20 space-y-1">
+                              <div>{msg.text}</div>
+                              {msg.cleanInput && (
+                                <div className="text-[10px] text-neutral-500 flex flex-wrap gap-x-4 pt-1">
+                                  <span>[Normal]: "{msg.cleanInput}"</span>
+                                  <span>[Lookup]: {msg.type}</span>
+                                  {msg.matched && <span>[Hit]: {msg.triggerUsed}</span>}
+                                  {msg.executionTimeMs && <span>[Time]: {msg.executionTimeMs}ms</span>}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={msg.id} className="text-amber-500 italic my-1.5">
+                              {msg.text}
+                            </div>
+                          );
+                        }
+                      })}
+
+                      {isLoading && (
+                        <div className="text-neutral-400 animate-pulse">
+                          <span>$ python parser.py --sanitize...</span>
+                        </div>
+                      )}
+                      <div ref={terminalEndRef} />
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Loop Broken Interactive Alert Frame overlay */}
+              <AnimatePresence>
+                {isLoopTerminated && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-rose-950/20 border border-rose-900/40 p-5 rounded-2xl mb-4 text-center space-y-3 shadow-inner shadow-rose-900/10"
+                  >
+                    <div className="inline-flex p-3 bg-rose-500/15 rounded-full text-rose-400 mb-1">
+                      <LogOut className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-md font-bold text-white">Interactive Loop Disconnected ('break' trigger)</h3>
+                    <p className="text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
+                      An exit command has triggered the logic gate <code>break</code>. The infinite cycle is broken and standard inputs are blocked until reset.
+                    </p>
+                    <button
+                      onClick={handleRestartLoop}
+                      className="bg-rose-600 hover:bg-rose-500 hover:scale-[1.02] text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-md shadow-rose-500/10"
+                    >
+                      Reset and Open standard loop cycle
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Chat Input form bar */}
+              <div className="space-y-3">
+                <div className="flex gap-2.5 items-center relative bg-[#171717] rounded-2xl border border-[#2f2f2f] p-1.5 shadow-xl">
+                  {selectedView === 'terminal' && (
+                    <span className="text-indigo-400 font-mono font-black select-none pl-3 text-sm">$</span>
+                  )}
+                  
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSendMessage();
+                    }}
+                    disabled={isLoopTerminated || isLoading}
+                    placeholder={
+                      isLoopTerminated 
+                        ? "Continuous loop has halted. Please restart to chat..." 
+                        : "Type message... (e.g. hello, bye, who are you, write 'exit' to break)..."
+                    }
+                    className="flex-1 bg-transparent font-mono text-sm inline-block focus:outline-none placeholder-neutral-500 text-white pl-3.5 pr-4 py-2.5 disabled:opacity-40"
+                    id="central-text-input"
+                  />
+
+                  <button
+                    onClick={() => handleSendMessage()}
+                    disabled={isLoopTerminated || isLoading || !userInput.trim()}
+                    className="bg-[#ececec] text-[#171717] hover:bg-white disabled:bg-[#2f2f2f] disabled:text-neutral-500 p-2.5 rounded-xl transition cursor-pointer shrink-0"
+                    id="submit-message-btn"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
+
+                {/* Subtext info */}
+                <span className="text-[10px] text-neutral-500 block text-center leading-normal">
+                  Project 1: Rule-Based Chatbot with linear input sanitization. Enter <strong>"exit"</strong> to break the execution loop.
+                </span>
+              </div>
 
             </div>
+          )}
 
-            {/* View Inputs Footer */}
-            <div className="p-4 bg-slate-900 border-t border-slate-800 flex gap-2 items-center">
-              {selectedView === 'terminal' && (
-                <span className="text-emerald-500 font-mono font-bold select-none text-sm">$</span>
-              )}
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSendMessage();
-                }}
-                disabled={isLoopTerminated || isLoading}
-                placeholder={isLoopTerminated ? "Loop has broke. Restart loop above to trigger..." : "Type text and hit enter (type 'exit' to break)..."}
-                className="flex-1 bg-slate-950 font-mono text-sm border border-slate-800 hover:border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-100 placeholder-slate-600 px-4 py-2 rounded-xl focus:outline-none transition-all disabled:opacity-50"
-                id="chatbot-text-input"
-              />
-              <button 
-                onClick={() => handleSendMessage()}
-                disabled={isLoopTerminated || isLoading || !userInput.trim()}
-                className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:opacity-40 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-1"
-                id="btn-send-message"
-              >
-                Send
-              </button>
+        </div>
+
+        {/* Dynamic Trace footer panel (only when chat or shell is active) */}
+        {selectedView !== 'portfolio' && (
+          <footer className="border-t border-[#2f2f2f] bg-[#171717] px-4 py-3 flex flex-col md:flex-row md:items-center justify-between text-[11px] text-neutral-400 gap-3 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-mono text-xs">O(1) Hash Map Matching Mode Enabled</span>
             </div>
-          </div>
-
-          {/* Quick Sandbox preset queries */}
-          <div className="bg-slate-900/30 border border-slate-800/80 p-4 rounded-2xl">
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3 font-mono">
-              Sandbox Test Statements
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => handleSendMessage("  HeLLo  ")}
-                disabled={isLoopTerminated || isLoading}
-                className="text-xs bg-slate-800/70 hover:bg-slate-800 text-slate-300 border border-slate-700/60 px-3 py-1.5 rounded-lg font-mono transition cursor-pointer"
-              >
-                "  HeLLo  " (test sanitization)
-              </button>
-              <button 
-                onClick={() => handleSendMessage("how are you")}
-                disabled={isLoopTerminated || isLoading}
-                className="text-xs bg-slate-800/70 hover:bg-slate-800 text-slate-300 border border-slate-700/60 px-3 py-1.5 rounded-lg font-mono transition cursor-pointer"
-              >
-                "how are you" (exact hit)
-              </button>
-              <button 
-                onClick={() => handleSendMessage("joke")}
-                disabled={isLoopTerminated || isLoading}
-                className="text-xs bg-slate-800/70 hover:bg-slate-800 text-slate-300 border border-slate-700/60 px-3 py-1.5 rounded-lg font-mono transition cursor-pointer"
-              >
-                "joke" (exact hit)
-              </button>
-              <button 
-                onClick={() => handleSendMessage("What is the distance to Mars?")}
-                disabled={isLoopTerminated || isLoading}
-                className="text-xs bg-slate-800/70 hover:bg-slate-800 text-amber-400 border border-slate-700/60 px-3 py-1.5 rounded-lg font-mono transition cursor-pointer"
-              >
-                "What is Mars?" (test LLM fallback)
-              </button>
-              <button 
-                onClick={() => handleSendMessage("exit")}
-                disabled={isLoopTerminated || isLoading}
-                className="text-xs bg-rose-950/20 hover:bg-rose-950/40 text-rose-400 border border-rose-900/30 px-3 py-1.5 rounded-lg font-mono transition cursor-pointer"
-              >
-                "exit" (kill loop)
-              </button>
+            
+            <div className="flex items-center gap-4 text-[10px] font-mono text-neutral-500">
+              <div className="flex items-center gap-2">
+                <span>Hybrid Backfill strategy:</span>
+                <button
+                  onClick={() => setHybridMode(!hybridMode)}
+                  className={`px-2 py-0.5 rounded cursor-pointer transition ${
+                    hybridMode ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                  }`}
+                >
+                  {hybridMode ? "ACTIVE (GEMINI)" : "OFF (FALLBACK ERROR)"}
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </footer>
+        )}
 
-        {/* RIGHT COLUMN: Pipeline Visualizer & Rules config editor - takes 5 shares */}
-        <section className="lg:col-span-5 flex flex-col gap-6" id="right-workspace-column">
+      </section>
+
+      {/* RIGHT DRAWER: Current Processing live Pipeline Trace */}
+      {selectedView !== 'portfolio' && (
+        <aside className="w-80 shrink-0 bg-[#0d0d0d] border-l border-[#2f2f2f] p-4 hidden xl:flex flex-col gap-6 overflow-y-auto custom-scrollbar">
           
-          {/* 1. DYNAMIC LOGIC PIPELINE */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2 mb-1">
-              <Activity className="w-4 h-4 text-indigo-400" />
-              Logic Processing Pipeline
-            </h3>
-            <p className="text-xs text-slate-400 pb-4 border-b border-slate-800">
-              Trace execution steps for the last triggered message in real-time.
-            </p>
+          <div className="space-y-4">
+            <div className="pb-3 border-b border-[#212121]">
+              <h3 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider font-mono">
+                <Activity className="w-4 h-4 text-indigo-400" />
+                Processing Trace
+              </h3>
+              <p className="text-[10px] text-neutral-500 mt-1">
+                Step-by-step logic pipeline parsing
+              </p>
+            </div>
 
-            <div className="space-y-4 pt-4">
+            <div className="space-y-4 pt-1">
               {lastPipeline.map((step, idx) => (
-                <div key={idx} className="flex gap-3 relative pb-1">
+                <div key={idx} className="flex gap-2.5 relative pb-1">
                   {idx < lastPipeline.length - 1 && (
-                    <div className="absolute left-3.5 top-7 w-[1px] h-9 bg-slate-800"></div>
+                    <div className="absolute left-3 top-6 w-[1px] h-9 bg-[#212121]"></div>
                   )}
 
-                  {/* Icon step */}
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
-                    step.status === 'success' 
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
-                      : step.status === 'error' 
-                        ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30' 
-                        : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30'
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 ${
+                    step.status === 'success'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : step.status === 'error'
+                        ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                        : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
                   }`}>
                     {idx + 1}
                   </div>
 
-                  {/* Flow description */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-300">{step.name}</span>
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-medium ${
-                        step.status === 'success' 
-                          ? 'text-emerald-400 bg-emerald-500/5' 
-                          : step.status === 'error' 
-                            ? 'text-rose-400 bg-rose-500/5' 
-                            : 'text-slate-400 bg-slate-800'
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="text-[11px] font-semibold text-neutral-300">{step.name}</span>
+                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                        step.status === 'success'
+                          ? 'text-emerald-400 bg-emerald-500/5 font-bold'
+                          : step.status === 'error'
+                            ? 'text-rose-400 bg-rose-500/5'
+                            : 'text-neutral-400 bg-[#171717]'
                       }`}>
                         {step.value}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-1 leading-normal">{step.description}</p>
+                    <p className="text-[10px] text-neutral-500 mt-1.5 leading-normal">{step.description}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* 2. RULE DICTIONARY CONFIGURATOR */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div>
-                <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                  <Code className="w-4 h-4 text-emerald-400" />
-                  Predefined Rules Dictionary
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Total rules indexed: {rules.length} (Matches execute in $O(1)$)
-                </p>
-              </div>
-              <button 
-                onClick={handleResetToDefaults}
-                title="Reset to original training kit defaults"
-                className="text-slate-400 hover:text-white transition p-1.5 hover:bg-slate-800 rounded-lg text-xs flex items-center gap-1 border border-slate-800 cursor-pointer"
-              >
-                <RotateCcw className="w-3" />
-                Reset
-              </button>
-            </div>
-
-            {/* List rules */}
-            <div className="my-4 max-h-[180px] overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
-              {rules.map((rule) => (
-                <div 
-                  key={rule.id} 
-                  className="flex items-center justify-between bg-slate-950/60 hover:bg-slate-950/90 border border-slate-800/85 px-3 py-2 rounded-xl transition"
-                >
-                  <div className="flex-1 min-w-0 mr-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-mono font-bold bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/10">
-                        {rule.trigger}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mt-1 truncate" title={rule.response}>
-                      {rule.response}
-                    </p>
-                  </div>
-                  <button 
-                    onClick={() => handleDeleteRule(rule.id)}
-                    className="text-slate-500 hover:text-rose-400 p-1.5 transition rounded-lg hover:bg-rose-500/10 cursor-pointer"
-                    title="Delete Key Match"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-              {rules.length === 0 && (
-                <p className="text-xs text-slate-500 italic text-center py-4">No lookup rules configured. Matches will fall through.</p>
-              )}
-            </div>
-
-            {/* Form to add a new rule */}
-            <form onSubmit={handleAddRule} className="bg-slate-950/40 p-3.5 rounded-xl border border-slate-800 space-y-3">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-mono block">Add O(1) Key Trigger</span>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  placeholder="Key (e.g. status)"
-                  value={newTrigger}
-                  onChange={(e) => setNewTrigger(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Answer response text"
-                  value={newResponse}
-                  onChange={(e) => setNewResponse(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              {editingError && (
-                <p className="text-[11px] text-rose-400 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {editingError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="w-full bg-indigo-600/80 hover:bg-indigo-600 text-white font-medium text-xs py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Register Key in Vocabulary
-              </button>
-            </form>
+          <div className="bg-[#171717] border border-[#2f2f2f] rounded-xl p-3.5 space-y-2 text-xs">
+            <h4 className="text-[10px] font-bold text-neutral-400 uppercase font-mono tracking-wider">Concept Spotlight</h4>
+            <p className="text-[11px] text-neutral-400 leading-normal">
+              Unlike <code>if/elif</code> ladder structures which require sequentially testing every rule ($O(n)$ complexity), the Python dictionary lookup resolves keys instantly using hashed indices ($O(1)$ constant time), protecting system scale efficiency.
+            </p>
           </div>
 
-          {/* 3. EXPERT SETTING CONFIGURATIONS */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              Hybrid Generative Settings
-            </h3>
-            
-            <div className="flex items-center justify-between p-3 bg-slate-950/80 rounded-xl border border-slate-800">
-              <div className="flex-1 pr-4">
-                <span className="text-xs font-semibold text-slate-200 block">Hybrid AI Backfill Strategy</span>
-                <span className="text-[10px] text-slate-500 mt-0.5 block leading-normal">
-                  If unmatched by rules, queries Gemini backend helper (Slide 18) instead of direct "unknown" error.
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input 
-                  type="checkbox" 
-                  checked={hybridMode}
-                  onChange={(e) => setHybridMode(e.target.checked)}
-                  className="sr-only peer" 
-                />
-                <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-slate-100"></div>
-              </label>
-            </div>
+        </aside>
+      )}
 
-            <div className="mt-4 bg-slate-950/40 border border-slate-800 p-3 rounded-xl flex gap-3 text-xs leading-normal text-slate-400">
-              <Info className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-              <p className="text-[11px]">
-                <strong className="text-slate-300">Deterministic vs Probabilistic: </strong> 
-                The O(1) direct dictionary match completes instantly in micro-seconds, ensuring absolutely ZERO hallucination and absolute safety. The Generative fallback provides conversational flexibility.
-              </p>
-            </div>
-          </div>
-        </section>
-          </>
-        )}
-      </main>
-
-      {/* Educational Footer Banner */}
-      <footer className="mt-auto border-t border-slate-900 bg-slate-950 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-600">
-        <div>
-          <span>&bull; Theoretical AI Concept Studio - Rules-based vs Vectors &bull;</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <span>O(1) Map Lookup</span>
-          <span>while True continuous loop</span>
-          <span>Normalized String sanitization</span>
-        </div>
-      </footer>
     </div>
   );
 }

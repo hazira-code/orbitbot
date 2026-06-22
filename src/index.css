@@ -4,6 +4,16 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-gpt-sidebar: #202123;
+  --color-gpt-main: #343541;
+  --color-gpt-green: #10A37F;
+  --color-gpt-text: #ECECF1;
+  --color-gpt-white: #FFFFFF;
+  --color-gpt-input: #40414F;
+  --color-gpt-assistant: #444654;
+  --color-gpt-divider: #4d4d4f;
+  --color-gpt-border: #3e3f4b;
 }
 
 @layer utilities {
@@ -16,11 +26,11 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.25);
+    background: rgba(156, 163, 175, 0.15);
     border-radius: 9999px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.45);
+    background: rgba(156, 163, 175, 0.3);
   }
 }
 

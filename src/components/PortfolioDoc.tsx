@@ -134,44 +134,44 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
   };
 
   return (
-    <div className="space-y-10 animate-fade-in text-neutral-200 p-0.5" id="portfolio-hub-container">
+    <div className="space-y-10 animate-fade-in text-gpt-text p-0.5" id="portfolio-hub-container">
       
       {/* 1. SEAMLESS CHATGPT DARK ACADEMIC COVER EMBED */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 via-neutral-950 to-neutral-900 p-8 md:p-12 shadow-2xl">
+      <div className="relative overflow-hidden rounded-lg border border-gpt-border bg-[#1e1e24] p-8 md:p-12 shadow-2xl">
         {/* Glow effects */}
-        <div className="absolute right-0 top-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute left-1/3 bottom-0 -ml-20 -mb-20 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute right-0 top-0 -mr-20 -mt-20 w-80 h-80 bg-gpt-green/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute left-1/3 bottom-0 -ml-20 -mb-20 w-80 h-80 bg-gpt-green/5 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-8 border-b border-neutral-800">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-8 border-b border-gpt-border/60">
           <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-800 text-neutral-300 border border-neutral-750 rounded-full text-xs font-mono font-semibold uppercase tracking-wider">
-              <Award className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#121214] text-neutral-300 border border-gpt-border rounded-full text-xs font-mono font-semibold uppercase tracking-wider">
+              <Award className="w-3.5 h-3.5 text-gpt-green" />
               Interactive Academic Portfolio
             </div>
             
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
               🤖 Rule-Based Chatbot using Python
             </h1>
             
-            <p className="text-sm md:text-base text-neutral-400 leading-relaxed font-sans">
+            <p className="text-sm md:text-base text-neutral-400 leading-relaxed font-sans font-medium">
               Implementation portfolio showcasing deterministic flow architectures, sanitization pipelines, and instant O(1) hash map lookup mechanisms. Perfect for academic submission.
             </p>
           </div>
 
-          <div className="bg-neutral-950/85 border border-neutral-800 p-5 rounded-xl shrink-0 min-w-[240px] space-y-3">
+          <div className="bg-[#121214] border border-gpt-border p-5 rounded-md shrink-0 min-w-[240px] space-y-3">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-mono block">Submission Dossier</span>
             <div className="space-y-2 text-xs font-mono">
               <div className="flex items-center justify-between text-neutral-400">
-                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5" /> Course:</span>
+                <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-gpt-green" /> Course:</span>
                 <span className="text-white font-medium">Foundational AI</span>
               </div>
               <div className="flex items-center justify-between text-neutral-400">
-                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Date:</span>
+                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gpt-green" /> Date:</span>
                 <span className="text-white font-medium">June 2026</span>
               </div>
               <div className="flex items-center justify-between text-neutral-400">
-                <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5" /> Profile:</span>
-                <span className="text-indigo-400 font-semibold">Constant O(1)</span>
+                <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-gpt-green" /> Profile:</span>
+                <span className="text-gpt-green font-semibold">Constant O(1)</span>
               </div>
             </div>
           </div>
@@ -179,21 +179,21 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
 
         {/* Project Quick Stats row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-8">
-          <div className="bg-neutral-900/60 border border-neutral-800/80 p-4 rounded-xl text-center">
+          <div className="bg-[#121214] border border-gpt-border/80 p-4 rounded-md text-center">
             <span className="text-neutral-500 text-xs font-mono block mb-1">Time Complexity</span>
-            <span className="text-lg font-bold font-mono text-emerald-400">O(1) Hash Map</span>
+            <span className="text-md md:text-lg font-bold font-mono text-gpt-green">O(1) Hash Map</span>
           </div>
-          <div className="bg-neutral-900/60 border border-neutral-800/80 p-4 rounded-xl text-center">
+          <div className="bg-[#121214] border border-gpt-border/80 p-4 rounded-md text-center">
             <span className="text-neutral-500 text-xs font-mono block mb-1">Casing Sanitizing</span>
-            <span className="text-lg font-bold font-mono text-indigo-400">Standardized</span>
+            <span className="text-md md:text-lg font-bold font-mono text-gpt-green">Standardized</span>
           </div>
-          <div className="bg-neutral-900/60 border border-neutral-800/80 p-4 rounded-xl text-center">
+          <div className="bg-[#121214] border border-gpt-border/80 p-4 rounded-md text-center">
             <span className="text-neutral-500 text-xs font-mono block mb-1">Vocabulary Size</span>
-            <span className="text-lg font-bold font-mono text-white">8+ Prime Rules</span>
+            <span className="text-md md:text-lg font-bold font-mono text-white">8+ Prime Rules</span>
           </div>
-          <div className="bg-neutral-900/60 border border-neutral-800/80 p-4 rounded-xl text-center">
+          <div className="bg-[#121214] border border-gpt-border/80 p-4 rounded-md text-center">
             <span className="text-neutral-500 text-xs font-mono block mb-1">Hallucination Risk</span>
-            <span className="text-lg font-bold font-mono text-rose-400">0.00% Zero</span>
+            <span className="text-md md:text-lg font-bold font-mono text-rose-450">0.00% Zero</span>
           </div>
         </div>
       </div>
@@ -205,55 +205,55 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
         <div className="lg:col-span-8 space-y-8">
           
           {/* Section: Project Overview */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 md:p-8 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 md:p-8 rounded-lg space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-indigo-400" />
+              <BookOpen className="w-5 h-5 text-gpt-green" />
               Project Overview & Theoretical Background
             </h2>
-            <div className="h-[1px] bg-neutral-800"></div>
-            <p className="text-sm text-neutral-300 leading-relaxed">
+            <div className="h-[1px] bg-gpt-border"></div>
+            <p className="text-sm text-neutral-350 leading-relaxed font-sans font-medium">
               Before constructing complex probabilistic deep learning systems that require millions of parameters, developers must master the absolute precision of **deterministic control logic**. This project implements a high-performance **Rule-Based Chatbot** using Python. The system processes direct key trigger patterns using an optimized **Hash Map Lookup**, offering zero latency, perfect predictability, and immediate guardrails.
             </p>
-            <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 flex gap-3 text-xs text-neutral-400 leading-relaxed">
-              <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5 animate-pulse" />
-              <span>
+            <div className="bg-[#121214] p-4 rounded-md border border-gpt-border flex gap-3 text-xs text-neutral-400 leading-relaxed">
+              <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5 animate-pulse" />
+              <span className="font-sans font-medium">
                 <strong>The Strategic Utility:</strong> While Large Language Models excel at creative prose, they are highly prone to hallucination. Modern enterprise stacks layer rule-based deterministic filters (like NVIDIA NeMo Guardrails) in front of the LLM to filter, redact, or block harmful inputs instantly. This project models that fundamental safety layer.
               </span>
             </div>
           </div>
 
           {/* Section: Project Objectives */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 md:p-8 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 md:p-8 rounded-lg space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-indigo-400" />
+              <CheckCircle className="w-5 h-5 text-gpt-green" />
               Core System Requirements & Objectives
             </h2>
-            <div className="h-[1px] bg-neutral-800"></div>
+            <div className="h-[1px] bg-gpt-border"></div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-neutral-950 border border-neutral-850 p-4 rounded-xl space-y-2">
-                <span className="text-xs font-mono font-bold text-indigo-400 text-purple-400">01 / Hello & Greetings</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans font-medium">
+              <div className="bg-[#121214] border border-gpt-border p-4 rounded-md space-y-2">
+                <span className="text-xs font-mono font-bold text-gpt-green">01 / Hello & Greetings</span>
                 <p className="text-xs text-neutral-300">
-                  Parse and match generic greeting inputs seamlessly (e.g. hello, hi, hey, good morning) across all cases of capitalization.
+                  Parse and match generic greeting inputs seamlessly (e.g. hello, hi, hey, "good morning") across all cases of capitalization.
                 </p>
               </div>
               
-              <div className="bg-neutral-950 border border-neutral-850 p-4 rounded-xl space-y-2">
-                <span className="text-xs font-mono font-bold text-indigo-400 text-purple-400">02 / Sanitization Pipeline</span>
+              <div className="bg-[#121214] border border-gpt-border p-4 rounded-md space-y-2">
+                <span className="text-xs font-mono font-bold text-gpt-green">02 / Sanitization Pipeline</span>
                 <p className="text-xs text-neutral-300">
-                  Clean whitespace characters, trim tabs, and convert text parameters to lowercase programmatically prior to directory lookups.
+                  Clean whitespace characters, trim tabs, and convert text parameters to lowercase programmatically prior to dictionary lookups.
                 </p>
               </div>
 
-              <div className="bg-neutral-950 border border-neutral-850 p-4 rounded-xl space-y-2">
-                <span className="text-xs font-mono font-bold text-indigo-400 text-purple-400">03 / Continuous Infinite Loop</span>
+              <div className="bg-[#121214] border border-gpt-border p-4 rounded-md space-y-2">
+                <span className="text-xs font-mono font-bold text-gpt-green">03 / Continuous Infinite Loop</span>
                 <p className="text-xs text-neutral-300">
                   Establish a stable <code>while True</code> shell that remains active and listening to user std_in unless an exit criterion hits.
                 </p>
               </div>
 
-              <div className="bg-neutral-950 border border-neutral-850 p-4 rounded-xl space-y-2">
-                <span className="text-xs font-mono font-bold text-indigo-400 text-purple-400">04 / Exit Strategy</span>
+              <div className="bg-[#121214] border border-gpt-border p-4 rounded-md space-y-2">
+                <span className="text-xs font-mono font-bold text-gpt-green">04 / Exit Strategy</span>
                 <p className="text-xs text-neutral-300">
                   Support exit commands (exit, quit, bye) to execute a safe loop break and disconnect cleanly.
                 </p>
@@ -262,45 +262,45 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           </div>
 
           {/* Section: Architectural Workflow Diagram */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 md:p-8 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 md:p-8 rounded-lg space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-400" />
+              <Layers className="w-5 h-5 text-gpt-green" />
               Project Workflow Architecture
             </h2>
-            <div className="h-[1px] bg-neutral-800"></div>
-            <p className="text-xs text-neutral-300 font-sans">
+            <div className="h-[1px] bg-gpt-border"></div>
+            <p className="text-xs text-neutral-300 font-sans font-medium">
               The program executes on a cyclic **Input-Process-Output (IPO)** process model structure:
             </p>
 
             {/* Graphical flowchart */}
-            <div className="bg-neutral-950 p-5 rounded-xl border border-neutral-850 space-y-3 font-mono text-xs">
+            <div className="bg-[#121214] p-5 rounded-md border border-gpt-border/80 space-y-3 font-mono text-xs">
               <div className="flex flex-col items-center gap-2">
-                <div className="bg-neutral-900 border border-neutral-700 px-4 py-2 rounded-lg text-white font-semibold text-center w-full max-w-sm shadow-sm">
+                <div className="bg-[#1e1e24] border border-gpt-border px-4 py-2 rounded-md text-white font-semibold text-center w-full max-w-sm shadow-sm">
                   User Types Message
                 </div>
                 <div className="text-neutral-500 text-base">↓</div>
-                <div className="bg-neutral-900 border border-neutral-700 px-4 py-2 rounded-lg text-indigo-400 font-semibold text-center w-full max-w-sm shadow-sm font-mono">
+                <div className="bg-[#1e1e24] border border-gpt-border px-4 py-2 rounded-md text-gpt-green font-semibold text-center w-full max-w-sm shadow-sm font-mono">
                   Input Sanitized: .strip().lower()
                 </div>
                 <div className="text-neutral-500 text-base">↓</div>
-                <div className="bg-[#1e1b4b] border border-indigo-900/50 px-4 py-2 rounded-lg text-indigo-300 font-semibold text-center w-full max-w-sm shadow-sm font-mono">
+                <div className="bg-[#1a2f2b] border border-gpt-green/20 px-4 py-2 rounded-md text-emerald-400 font-semibold text-center w-full max-w-sm shadow-sm font-mono">
                   Conditional Checks (Exit / Vocabulary)
                 </div>
                 <div className="text-neutral-500 text-base">↓</div>
                 
-                <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
-                  <div className="bg-[#022c22] border border-[#065f46]/40 p-3 rounded-lg text-center shadow-inner">
-                    <span className="text-[10px] text-emerald-400 font-bold block mb-1">TRIGGER DETECTED</span>
-                    <span className="text-xs text-neutral-200">Return response instantly</span>
+                <div className="grid grid-cols-2 gap-4 w-full max-w-lg font-sans">
+                  <div className="bg-gpt-green/10 border border-gpt-green/30 p-3 rounded-md text-center shadow-inner">
+                    <span className="text-[10px] text-gpt-green font-bold block mb-1">TRIGGER DETECTED</span>
+                    <span className="text-xs text-neutral-200 font-medium">Return response instantly</span>
                   </div>
-                  <div className="bg-[#4c0519]/25 border border-[#9f1239]/35 p-3 rounded-lg text-center shadow-inner">
+                  <div className="bg-rose-950/15 border border-rose-900/30 p-3 rounded-md text-center shadow-inner">
                     <span className="text-[10px] text-rose-400 font-bold block mb-1">NO MATCH FOUND</span>
-                    <span className="text-xs text-neutral-200">Fires default fallback error</span>
+                    <span className="text-xs text-neutral-200 font-medium">Fires default fallback error</span>
                   </div>
                 </div>
 
                 <div className="text-neutral-500 text-base">↓</div>
-                <div className="bg-neutral-900 border border-neutral-700 px-4 py-2 rounded-lg text-white font-semibold text-center w-full max-w-sm shadow-sm">
+                <div className="bg-[#1e1e24] border border-gpt-border px-4 py-2 rounded-md text-white font-semibold text-center w-full max-w-sm shadow-sm">
                   Continues to Next Cycle / Awaits User
                 </div>
               </div>
@@ -308,39 +308,39 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           </div>
 
           {/* Section: Expected Terminal Output Bubbles */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 md:p-8 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 md:p-8 rounded-lg space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Terminal className="w-5 h-5 text-indigo-400" />
+              <Terminal className="w-5 h-5 text-gpt-green" />
               Expected Conversation Lifecycles
             </h2>
-            <div className="h-[1px] bg-neutral-800"></div>
+            <div className="h-[1px] bg-gpt-border"></div>
 
             <div className="space-y-4">
               
               {/* ChatGPT-style message bubbles */}
-              <div className="bg-neutral-950 rounded-xl border border-neutral-800 p-4 space-y-3">
-                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-neutral-900 pb-1.5">Scenario A: Normalized capitalization matching</span>
+              <div className="bg-[#121214] rounded-md border border-gpt-border p-4 space-y-3">
+                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-gpt-border/25 pb-1.5">Scenario A: Normalized capitalization matching</span>
                 <div className="text-xs font-mono space-y-1.5 text-neutral-300">
-                  <p className="text-indigo-400 font-semibold">You:   HeLLo  </p>
+                  <p className="text-gpt-green font-semibold">You:   HeLLo  </p>
                   <p className="text-emerald-400 font-semibold">Bot: Hello there! How can I help you today?</p>
                   <p className="text-neutral-500 italic block pt-1">// Logic clean input to lowercase "hello" resulting in immediate O(1) matching speed.</p>
                 </div>
               </div>
 
-              <div className="bg-neutral-950 rounded-xl border border-neutral-800 p-4 space-y-3">
-                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-neutral-900 pb-1.5">Scenario B: Unrecognized Fallback Error</span>
+              <div className="bg-[#121214] rounded-md border border-gpt-border p-4 space-y-3">
+                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-gpt-border/25 pb-1.5">Scenario B: Unrecognized Fallback Error</span>
                 <div className="text-xs font-mono space-y-1.5 text-neutral-300">
-                  <p className="text-indigo-400 font-semibold">You: Where is Mars?</p>
-                  <p className="text-rose-400 font-semibold">Bot: I do not understand. (No matching rules discovered in my dictionary.)</p>
+                  <p className="text-gpt-green font-semibold">You: Where is Mars?</p>
+                  <p className="text-rose-450 font-semibold">Bot: I do not understand. (No matching rules discovered in my dictionary.)</p>
                 </div>
               </div>
 
-              <div className="bg-neutral-950 rounded-xl border border-neutral-800 p-4 space-y-3">
-                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-neutral-900 pb-1.5">Scenario C: Exit Gracefully</span>
+              <div className="bg-[#121214] rounded-md border border-gpt-border p-4 space-y-3">
+                <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase tracking-wider block border-b border-gpt-border/25 pb-1.5">Scenario C: Exit Gracefully</span>
                 <div className="text-xs font-mono space-y-1.5 text-neutral-300">
-                  <p className="text-indigo-400 font-semibold">You: quit</p>
+                  <p className="text-[#888ab0] font-semibold">You: quit</p>
                   <p className="text-neutral-400 font-semibold">Bot: Exit code triggered. Session disconnected. Loop broken gracefully.</p>
-                  <p className="text-neutral-500 block pt-1.5 border-t border-neutral-900 mt-2">// Loop terminates, control returns safely. shell process exit 0.</p>
+                  <p className="text-neutral-500 block pt-1.5 border-t border-gpt-border/25 mt-2">// Loop terminates, control returns safely. shell process exit 0.</p>
                 </div>
               </div>
             </div>
@@ -349,40 +349,40 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
         </div>
 
         {/* Right Column: Key Requirements / Skills / Code Box */}
-        <div className="lg:col-span-4 space-y-8">
+        <div className="lg:col-span-4 space-y-8 font-sans font-medium">
           
           {/* Skills Checklist Card */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 rounded-lg space-y-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              <Cpu className="w-4 h-4 text-indigo-400" />
+              <Cpu className="w-4 h-4 text-gpt-green" />
               Demonstrated Skills & Mechanics
             </h3>
-            <div className="h-[1px] bg-neutral-800"></div>
+            <div className="h-[1px] bg-gpt-border"></div>
             
             <ul className="space-y-3.5 text-xs">
               <li className="flex items-start gap-2.5">
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-gpt-green shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block">Control Flow Logic</strong>
                   <span className="text-neutral-400 text-[10px]">Deterministic logic parsing using optimized python nested logic guards.</span>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-gpt-green shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block">Looping Interactivity</strong>
                   <span className="text-neutral-400 text-[10px]">Designing endless background execution shells to handle incoming std_in dynamically.</span>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-gpt-green shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block">Input Sanitization</strong>
                   <span className="text-neutral-400 text-[10px]">Utilizing built-in text trimming and lowercase functions to safely normalize keyboard input layout.</span>
                 </div>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-gpt-green shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-neutral-200 block">Constant-Speed Dictionaries</strong>
                   <span className="text-neutral-400 text-[10px]">Bypassing O(n) sequential loop lag with O(1) key lookups, maintaining scalability.</span>
@@ -392,18 +392,18 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           </div>
 
           {/* Academic Learning Outcomes */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 rounded-lg space-y-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-indigo-400" />
+              <Award className="w-4 h-4 text-gpt-green" />
               Target Learning Outcomes
             </h3>
-            <div className="h-[1px] bg-neutral-800"></div>
+            <div className="h-[1px] bg-gpt-border"></div>
 
-            <p className="text-xs text-neutral-400 leading-normal mb-2 font-sans">
+            <p className="text-xs text-neutral-400 leading-normal mb-2">
               Evaluating Project 1 outputs demonstrates core proficiency over:
             </p>
 
-            <ul className="space-y-2.5 text-xs text-neutral-300 list-disc pl-4 font-sans">
+            <ul className="space-y-2.5 text-xs text-neutral-300 list-disc pl-4">
               <li>Configuring interactive runtime cycle shells.</li>
               <li>Linear-time cleaning of incoming payload string arrays.</li>
               <li>How deterministic code matrices operate without full database components.</li>
@@ -411,13 +411,13 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           </div>
 
           {/* Technical Documentation Conclusion */}
-          <div className="bg-neutral-900/50 border border-neutral-800 p-6 rounded-2xl space-y-4">
+          <div className="bg-[#1e1e24] border border-gpt-border p-6 rounded-lg space-y-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
               <Zap className="w-4 h-4 text-amber-400" />
               Conclusion
             </h3>
-            <div className="h-[1px] bg-neutral-800"></div>
-            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+            <div className="h-[1px] bg-gpt-border"></div>
+            <p className="text-xs text-neutral-400 leading-relaxed">
               A **Rule-Based Chatbot** is the critical structural first-step of conversational engineering. It establishes predictable channels, safeguards systems from malicious user overrides, and forms the bedrock core before expanding into NLP, Vector Embeddings, and Generative AI.
             </p>
           </div>
@@ -427,10 +427,10 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
       </div>
 
       {/* 3. FLUID FULL-WIDTH CODEBLOCK ZONE WITH EXPORT CONTROLS */}
-      <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4 flex items-center justify-between">
+      <div className="bg-[#1e1e24] border border-gpt-border rounded-lg overflow-hidden shadow-xl">
+        <div className="bg-[#1c1c22] border-b border-gpt-border/80 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Code className="w-4 h-4 text-indigo-400" />
+            <Code className="w-4 h-4 text-gpt-green" />
             <span className="text-xs font-mono font-semibold text-neutral-300">
               rule_based_chatbot.py
             </span>
@@ -439,7 +439,7 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           <div className="flex items-center gap-3">
             <button
               onClick={handleCopyMarkdown}
-              className="flex items-center gap-1.5 text-xs bg-neutral-800 border border-neutral-700 hover:text-white text-neutral-300 px-3 py-1.5 rounded-lg transition font-mono cursor-pointer"
+              className="flex items-center gap-1.5 text-xs bg-[#121214] border border-gpt-border hover:border-gpt-green hover:text-white text-neutral-300 px-3 py-1.5 rounded-md transition font-mono cursor-pointer"
             >
               <Copy className="w-3.5 h-3.5" />
               {copied ? "Copied!" : "Copy Report Markdown"}
@@ -447,7 +447,7 @@ This project presents a high-performance **Rule-Based Chatbot** written in Pytho
           </div>
         </div>
 
-        <div className="p-4 md:p-6 bg-neutral-950">
+        <div className="p-4 md:p-6 bg-[#121214]">
           <pre className="text-xs font-mono overflow-x-auto text-neutral-300 custom-scrollbar leading-relaxed">
             <code>{samplePythonCode}</code>
           </pre>

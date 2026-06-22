@@ -27,7 +27,10 @@ import {
   ExternalLink,
   ChevronLeft,
   Menu,
-  Database
+  Database,
+  Search,
+  Settings,
+  HelpCircle as HelpIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Rule, Message, PipelineStep } from "./types";
@@ -81,6 +84,9 @@ export default function App() {
   const [isLoopTerminated, setIsLoopTerminated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  // Search vocabulary
+  const [searchTerm, setSearchTerm] = useState("");
   
   // Rule editor form state
   const [newTrigger, setNewTrigger] = useState("");
@@ -254,7 +260,7 @@ export default function App() {
     }
 
     if (rules.some(r => r.trigger.trim().toLowerCase() === term)) {
-      setEditingError(`Trigger key "${term}" already exists.`);
+      setEditingError(`Trigger "${term}" already exists.`);
       return;
     }
 
@@ -304,28 +310,34 @@ export default function App() {
     ]);
   };
 
+  const filteredRules = rules.filter(r => 
+    r.trigger.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.response.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-[#171717] font-sans text-[#ececec] selection:bg-neutral-700 selection:text-white antialiased flex flex-row overflow-hidden">
+    <div className="min-h-screen bg-gpt-main font-sans text-gpt-text selection:bg-gpt-border selection:text-white antialiased flex flex-row overflow-hidden">
       
-      {/* SIDEBAR: Left Control Center (ChatGPT Style) */}
+      {/* SIDEBAR: Left Control Center (ChatGPT Inspired Dark Theme) */}
       <aside 
-        className={`bg-[#0d0d0d] text-neutral-300 w-80 shrink-0 border-r border-[#2f2f2f] flex flex-col justify-between transition-all duration-300 z-40 fixed h-full lg:relative ${
+        className={`bg-gpt-sidebar text-neutral-200 w-80 shrink-0 border-r border-gpt-border flex flex-col justify-between transition-all duration-300 z-40 fixed h-full lg:relative ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:border-r-0 lg:overflow-hidden'
         }`}
       >
-        <div className="flex flex-col h-full overflow-y-auto custom-scrollbar p-3.5 space-y-6">
+        <div className="flex flex-col h-full overflow-y-auto custom-scrollbar p-3 space-y-4">
+          
           {/* Header context */}
-          <div className="flex items-center justify-between border-b border-[#212121] pb-3">
+          <div className="flex items-center justify-between pb-2 border-b border-gpt-divider/30">
             <div className="flex items-center gap-2.5">
-              <div className="bg-indigo-600/20 text-indigo-400 p-2 rounded-lg border border-indigo-500/10">
-                <Cpu className="w-5 h-5 animate-pulse" />
+              <div className="bg-gpt-green text-white p-1.5 rounded-md flex items-center justify-center">
+                <Cpu className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white tracking-tight">Logic Engine Control</h2>
-                <div className="flex items-center gap-1">
-                  <span className={`w-2 h-2 rounded-full ${isLoopTerminated ? 'bg-rose-500' : 'bg-emerald-500'}`} />
-                  <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-neutral-500">
-                    {isLoopTerminated ? "LOOP HALTED" : "LOOP ACTIVE"}
+                <h2 className="text-sm font-semibold text-white tracking-tight">AI Logic Engine</h2>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${isLoopTerminated ? 'bg-rose-500' : 'bg-gpt-green'}`} />
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-neutral-400 font-semibold">
+                    {isLoopTerminated ? "HALTED" : "ACTIVE LOOKUP"}
                   </span>
                 </div>
               </div>
@@ -333,39 +345,48 @@ export default function App() {
             
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-neutral-400 hover:text-white p-1 hover:bg-[#212121] rounded"
+              className="lg:hidden text-neutral-450 hover:text-white p-1 hover:bg-neutral-800 rounded"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
           </div>
 
+          {/* New Chat Button / Clear Triggers / Reset */}
+          <button
+            onClick={handleClearHistory}
+            className="w-full flex items-center gap-2 text-left text-xs text-white border border-gpt-divider hover:bg-neutral-800 py-2.5 px-3 rounded-md transition duration-250 cursor-pointer"
+          >
+            <Plus className="w-4 h-4 shrink-0" />
+            Clear Chat Flow
+          </button>
+
           {/* New Match Register Form */}
-          <div className="space-y-3 bg-[#171717] border border-[#2f2f2f] rounded-xl p-3 shadow-inner">
-            <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono flex items-center gap-1.5 pb-2 border-b border-[#212121]">
-              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
-              Register Predefined Trigger
+          <div className="space-y-3 bg-[#1e1e24] border border-[#2f2f36] rounded-lg p-3 shadow-sm">
+            <span className="text-[10px] font-bold text-neutral-300 uppercase tracking-wider font-mono flex items-center gap-1.5 border-b border-gpt-divider/20 pb-1.5">
+              <Sliders className="w-3.5 h-3.5 text-gpt-green" />
+              Add Key Match Rule
             </span>
             
-            <form onSubmit={handleAddRule} className="space-y-2">
+            <form onSubmit={handleAddRule} className="space-y-2.5">
               <div>
-                <label className="text-[10px] text-neutral-400 block mb-1">Key Match Trigger</label>
+                <label className="text-[10px] text-neutral-400 block mb-1 font-medium">Trigger Phrase</label>
                 <input
                   type="text"
                   placeholder="e.g. status"
                   value={newTrigger}
                   onChange={(e) => setNewTrigger(e.target.value)}
-                  className="w-full bg-[#0d0d0d] border border-[#2f2f2f] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-neutral-600"
+                  className="w-full bg-[#121214] border border-gpt-border rounded-md px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-gpt-green placeholder-neutral-605"
                 />
               </div>
               
               <div>
-                <label className="text-[10px] text-neutral-400 block mb-1">Response Value</label>
+                <label className="text-[10px] text-neutral-400 block mb-1 font-medium">Predefined Response</label>
                 <textarea
-                  placeholder="System response string"
+                  placeholder="Instant O(1) response string"
                   value={newResponse}
                   onChange={(e) => setNewResponse(e.target.value)}
                   rows={2}
-                  className="w-full bg-[#0d0d0d] border border-[#2f2f2f] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-neutral-600 resize-none text-neutral-300"
+                  className="w-full bg-[#121214] border border-gpt-border rounded-md px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-gpt-green placeholder-neutral-605 resize-none text-neutral-300"
                 />
               </div>
 
@@ -378,7 +399,7 @@ export default function App() {
 
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full bg-gpt-green hover:bg-[#0e8f6e] text-white text-xs font-semibold py-1.5 px-3 rounded-md transition-colors flex items-center justify-center gap-1 cursor-pointer shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add to Hash Map
@@ -386,88 +407,99 @@ export default function App() {
             </form>
           </div>
 
-          {/* Active Rules Vocabulary list */}
-          <div className="space-y-2 flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between pb-1">
-              <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono">
-                Vocabulary List ({rules.length})
+          {/* Vocabulary Explorer with real-time search */}
+          <div className="space-y-2.5 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center justify-between pb-0.5">
+              <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider font-mono">
+                Vocabulary Lookup ({rules.length})
               </span>
               <button 
                 onClick={handleResetToDefaults}
-                className="text-[10px] text-indigo-400 hover:text-indigo-300 transition flex items-center gap-0.5 cursor-pointer"
+                className="text-[10px] text-[#55b399] hover:text-[#10A37F] transition flex items-center gap-0.5 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 Reset Defaults
               </button>
             </div>
 
+            {/* Quick search input */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-2 top-2.5" />
+              <input 
+                type="text" 
+                placeholder="Search vocabulary keys..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-[#121214] border border-gpt-border rounded-md pl-7 pr-2 py-1.5 text-[11px] text-white focus:outline-none focus:border-gpt-green placeholder-neutral-550"
+              />
+            </div>
+
+            {/* Vocabulary list scrolling */}
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
-              {rules.map((rule) => (
+              {filteredRules.map((rule) => (
                 <div 
                   key={rule.id}
-                  className="group flex items-center justify-between bg-[#171717] hover:bg-[#212121] border border-[#232323] hover:border-[#2f2f2f] p-2.5 rounded-xl transition"
+                  className="group flex items-center justify-between bg-[#121214] hover:bg-neutral-800/60 border border-[#27272a] hover:border-gpt-border p-2.5 rounded-md transition"
                 >
                   <div className="min-w-0 flex-1 pr-2">
-                    <span className="text-xs font-mono font-bold text-white bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/10">
+                    <span className="text-xs font-mono font-bold text-white bg-gpt-green/10 text-emerald-400 px-1.5 py-0.5 rounded border border-gpt-green/10">
                       /{rule.trigger}
                     </span>
-                    <p className="text-[10px] text-neutral-400 mt-1 truncate" title={rule.response}>
+                    <p className="text-[10px] text-neutral-400 mt-1.5 truncate" title={rule.response}>
                       {rule.response}
                     </p>
                   </div>
                   <button
                     onClick={() => handleDeleteRule(rule.id)}
-                    className="text-neutral-500 hover:text-rose-400 p-1 rounded transition opacity-0 group-hover:opacity-100 cursor-pointer"
+                    className="text-neutral-500 hover:text-rose-450 p-1 rounded transition opacity-0 group-hover:opacity-100 cursor-pointer hover:bg-neutral-700"
                     title="Delete trigger"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
-              {rules.length === 0 && (
-                <p className="text-xs text-neutral-500 italic text-center py-4">No predefined rules configured.</p>
+              {filteredRules.length === 0 && (
+                <p className="text-[11px] text-neutral-500 italic text-center py-4">No matching triggers configured.</p>
               )}
             </div>
           </div>
 
-          {/* Statistics card */}
-          <div className="bg-[#171717] border border-[#2f2f2f] rounded-xl p-3.5 space-y-2">
-            <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider font-mono block">Logic Complexity</span>
+          {/* Complexity Analytics */}
+          <div className="bg-[#121214] border border-gpt-border rounded-md p-3 space-y-2">
+            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider font-mono block">Logic Mapping</span>
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
-              <div className="bg-[#0d0d0d] p-2 rounded-lg border border-[#212121]">
-                <span className="text-[10px] text-neutral-500 block">Lookup</span>
-                <strong className="text-emerald-400 font-mono">O(1)</strong>
+              <div className="bg-[#1e1e24] p-1.5 rounded border border-[#2f2f36]">
+                <span className="text-[9px] text-neutral-500 block">Query Scaling</span>
+                <strong className="text-[#10A37F] font-mono">O(1)</strong>
               </div>
-              <div className="bg-[#0d0d0d] p-2 rounded-lg border border-[#212121]">
-                <span className="text-[10px] text-neutral-500 block">Sanitizer</span>
-                <strong className="text-white font-mono">2-Step</strong>
+              <div className="bg-[#1e1e24] p-1.5 rounded border border-[#2f2f36]">
+                <span className="text-[9px] text-neutral-500 block">Sanitization</span>
+                <strong className="text-neutral-350 font-mono">Lowercase</strong>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer info area */}
-        <div className="p-3.5 border-t border-[#2f2f2f] bg-[#090909] text-xs space-y-2">
-          <div className="flex items-center justify-between text-neutral-400 text-[11px]">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Secure Logic
-            </span>
-            <span className="font-mono text-[10px] text-neutral-500">v1.1</span>
-          </div>
+        {/* User profile segment */}
+        <div className="p-3 border-t border-gpt-border bg-[#18181c] text-xs flex items-center justify-between text-neutral-400">
+          <span className="flex items-center gap-1.5 text-[11px]">
+            <ShieldCheck className="w-4 h-4 text-gpt-green" />
+            Local Client Secure
+          </span>
+          <span className="font-mono text-[9px] text-neutral-500">v1.2.0</span>
         </div>
       </aside>
 
-      {/* CHAT AREA: Central workspace */}
-      <section className="flex-1 flex flex-col justify-between overflow-hidden relative bg-[#212121]">
+      {/* CHAT AREA: Central main workspace frame */}
+      <section className="flex-1 flex flex-col justify-between overflow-hidden relative bg-gpt-main">
         
         {/* Upper Dashboard Tab Header */}
-        <header className="border-b border-[#2f2f2f] bg-[#171717] px-4 py-3 flex items-center justify-between shrink-0 z-20">
+        <header className="border-b border-gpt-border bg-gpt-sidebar px-4 py-2.5 flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
               <button 
                 onClick={() => setSidebarOpen(true)}
-                className="text-neutral-300 hover:text-white p-1 hover:bg-[#2f2f2f] rounded-lg transition cursor-pointer"
+                className="text-neutral-300 hover:text-white p-1 hover:bg-neutral-800 rounded-lg transition cursor-pointer"
               >
                 <Menu className="w-5 h-5" />
               </button>
@@ -476,7 +508,7 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <h1 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
                   System 2 Logic Engine
-                  <span className="text-[10px] tracking-wide font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-400/20 px-1.5 py-0.5 rounded">
+                  <span className="text-[9px] tracking-wide font-mono bg-gpt-green/10 text-gpt-green border border-gpt-green/20 px-1.5 py-0.5 rounded">
                     DETERMINISTIC
                   </span>
                 </h1>
@@ -484,25 +516,25 @@ export default function App() {
             </div>
           </div>
 
-          {/* Upper Tabs: Terminal, ChatGPT UI, Project Doc */}
-          <div className="flex items-center gap-1 bg-[#0d0d0d] p-1 rounded-xl border border-[#2f2f2f]">
+          {/* Upper View Switch Tabs */}
+          <div className="flex items-center gap-1 bg-[#121214] p-1 rounded-lg border border-gpt-border">
             <button
               onClick={() => setSelectedView('gui')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer ${
                 selectedView === 'gui'
-                  ? 'bg-[#212121] text-white shadow'
+                  ? 'bg-gpt-main text-white shadow'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+              <MessageSquare className="w-3.5 h-3.5 text-gpt-green" />
               ChatGPT Chat
             </button>
             
             <button
               onClick={() => setSelectedView('terminal')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer ${
                 selectedView === 'terminal'
-                  ? 'bg-[#212121] text-white shadow'
+                  ? 'bg-gpt-main text-white shadow'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
@@ -512,106 +544,101 @@ export default function App() {
 
             <button
               onClick={() => setSelectedView('portfolio')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-all cursor-pointer ${
                 selectedView === 'portfolio'
-                  ? 'bg-[#212121] text-white shadow'
+                  ? 'bg-gpt-main text-white shadow'
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              <FileText className="w-3.5 h-3.5 text-amber-400" />
+              <FileText className="w-3.5 h-3.5 text-amber-500" />
               Project Report
             </button>
           </div>
         </header>
 
         {/* Central main viewport */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 bg-[#212121] flex flex-col">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gpt-main flex flex-col">
           
           {selectedView === 'portfolio' ? (
-            <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in py-4">
+            <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-8 animate-fade-in py-6">
               <PortfolioDoc />
             </div>
           ) : (
-            <div className="flex-1 w-full max-w-3xl mx-auto flex flex-col justify-between py-2">
+            <div className="flex-1 w-full flex flex-col justify-between py-2">
               
               {/* Message Log viewport list */}
-              <div className="space-y-6 flex-1 mb-8">
+              <div className="flex-1">
                 
                 {chatHistory.length === 1 && (
-                  <div className="py-8 text-center space-y-6">
-                    <div className="flex justify-center">
-                      <div className="bg-[#171717] p-4 rounded-full border border-[#2f2f2f] shadow-lg">
-                        <Cpu className="w-10 h-10 text-indigo-400 animate-pulse" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <h2 className="text-xl font-bold text-white">How can I help you today?</h2>
-                      <p className="text-neutral-400 text-xs max-w-md mx-auto leading-relaxed">
-                        Test the rule-based logic engine. You can enter clean strings, trigger exact-matching rules with instant speed, choose exits to break standard terminal loops, or leverage hybrid AI.
-                      </p>
-                    </div>
+                  <div className="py-12 md:py-16 text-center space-y-6 px-4">
+                    <h2 className="text-2xl md:text-3.5xl font-bold text-white tracking-tight">
+                      ChatGPT Logic Engine
+                    </h2>
+                    <p className="text-neutral-400 text-xs max-w-sm mx-auto leading-relaxed font-medium">
+                      Master O(1) matching. Standardize case triggers, run deterministic loop breakers, or fallback seamlessly to Gemini.
+                    </p>
 
-                    {/* Dynamic clickable prompt cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto pt-4 text-left">
+                    {/* Dynamic prompt cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-w-xl mx-auto pt-6 text-left">
                       <button 
                         onClick={() => handleSendMessage("  HeLLo  ")}
-                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                        className="bg-gpt-sidebar hover:bg-gpt-assistant border border-gpt-border p-3 rounded-md transition text-left cursor-pointer space-y-1 group"
                       >
-                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-white group-hover:text-gpt-green flex items-center justify-between">
                           Test Case Sanitization
                           <ChevronRight className="w-3.5 h-3.5" />
                         </span>
-                        <p className="text-[11px] text-neutral-400">Triggers string clean-ups for "  HeLLo  "</p>
+                        <p className="text-[11px] text-neutral-400">Normalizes and trims whitespace logic cleanly</p>
                       </button>
 
                       <button 
                         onClick={() => handleSendMessage("who are you")}
-                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                        className="bg-gpt-sidebar hover:bg-gpt-assistant border border-gpt-border p-3 rounded-md transition text-left cursor-pointer space-y-1 group"
                       >
-                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-white group-hover:text-gpt-green flex items-center justify-between">
                           Identity Query
                           <ChevronRight className="w-3.5 h-3.5" />
                         </span>
-                        <p className="text-[11px] text-neutral-400">Requests chatbot specification details</p>
+                        <p className="text-[11px] text-neutral-400">Verifies system design details instantly</p>
                       </button>
 
                       <button 
-                        onClick={() => handleSendMessage("Tell me some other things?")}
-                        className="bg-[#171717] hover:bg-[#2f2f2f] border border-[#2f2f2f] p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                        onClick={() => handleSendMessage("Is Python fast for matching?")}
+                        className="bg-gpt-sidebar hover:bg-gpt-assistant border border-gpt-border p-3 rounded-md transition text-left cursor-pointer space-y-1 group"
                       >
-                        <span className="text-xs font-bold text-white group-hover:text-indigo-400 flex items-center justify-between">
-                          Toggle Hybrid Mode Fallback
+                        <span className="text-xs font-semibold text-white group-hover:text-gpt-green flex items-center justify-between">
+                          Toggle Gemini Hybrid Mode
                           <ChevronRight className="w-3.5 h-3.5" />
                         </span>
-                        <p className="text-[11px] text-neutral-400">Triggers Gemini generative answer cascade</p>
+                        <p className="text-[11px] text-neutral-400">Forwards unresolved triggers to LLM</p>
                       </button>
 
                       <button 
                         onClick={() => handleSendMessage("exit")}
-                        className="bg-[#171717] hover:bg-rose-950/20 border border-[#2f2f2f] hover:border-rose-900/40 p-3 rounded-xl transition text-left cursor-pointer space-y-1 group"
+                        className="bg-gpt-sidebar hover:bg-rose-950/10 border border-gpt-border hover:border-rose-900/30 p-3 rounded-md transition text-left cursor-pointer space-y-1 group"
                       >
-                        <span className="text-xs font-bold text-white group-hover:text-rose-400 flex items-center justify-between">
-                          Trigger Kill Command
+                        <span className="text-xs font-semibold text-white group-hover:text-rose-400 flex items-center justify-between">
+                          Trigger Exit Break
                           <ChevronRight className="w-3.5 h-3.5" />
                         </span>
-                        <p className="text-[11px] text-neutral-400">Breaks Python standard interactive shell loop</p>
+                        <p className="text-[11px] text-neutral-400">Gracefully breaks infinite execution cycles</p>
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* REAL USER VS BOT CHAT CONTAINER (ChatGPT Style) */}
+                {/* REAL USER VS BOT CHAT CONTAINER (Clean ChatGPT Design) */}
                 {selectedView === 'gui' ? (
-                  <div className="space-y-4">
-                    {chatHistory.map((msg, index) => {
+                  <div className="divide-y divide-gpt-border/40">
+                    {chatHistory.map((msg) => {
                       const isUser = msg.sender === 'user';
                       const isSys = msg.sender === 'system';
 
                       if (isSys) {
                         return (
-                          <div key={msg.id} className="flex justify-center my-3">
-                            <span className="bg-[#171717] border border-[#2f2f2f] text-[10px] text-neutral-400 font-mono px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
-                              <Database className="w-3 h-3 text-indigo-400" />
+                          <div key={msg.id} className="flex justify-center bg-gpt-main py-2.5 border-b border-gpt-border/20">
+                            <span className="bg-gpt-sidebar border border-gpt-border text-[9px] text-neutral-400 font-mono px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                              <Database className="w-3 h-3 text-gpt-green" />
                               {msg.text}
                             </span>
                           </div>
@@ -621,78 +648,82 @@ export default function App() {
                       return (
                         <div 
                           key={msg.id}
-                          className={`flex items-start gap-4 p-4 rounded-xl transition-all ${
-                            isUser ? 'bg-transparent' : 'bg-[#171717] border border-[#2a2a2a]'
+                          className={`py-6 md:py-8 ${
+                            isUser ? 'bg-gpt-main' : 'bg-gpt-assistant border-y border-gpt-border/10'
                           }`}
                         >
-                          {/* Avatar icon */}
-                          <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-bold text-xs ${
-                            isUser 
-                              ? 'bg-neutral-700 text-white' 
-                              : 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20'
-                          }`}>
-                            {isUser ? <User className="w-4 h-4" /> : <Cpu className="w-4 h-4 text-indigo-400" />}
-                          </div>
-
-                          <div className="flex-1 space-y-2 min-w-0">
-                            {/* Header */}
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-white">
-                                {isUser ? "You" : "Deterministic Assistant"}
-                              </span>
-                              <span className="text-[10px] text-neutral-500 font-mono">
-                                {msg.timestamp}
-                              </span>
+                          <div className="max-w-3xl mx-auto px-4 md:px-6 flex items-start gap-4">
+                            {/* Avatar icon */}
+                            <div className={`w-7.5 h-7.5 rounded shrink-0 flex items-center justify-center text-xs font-bold ${
+                              isUser 
+                                ? 'bg-[#5436da] text-white' 
+                                : 'bg-gpt-green text-white'
+                            }`}>
+                              {isUser ? <User className="w-3.5 h-3.5" /> : <Cpu className="w-3.5 h-3.5" />}
                             </div>
 
-                            {/* Message text */}
-                            <div className="text-sm leading-relaxed text-[#ececec] whitespace-pre-wrap selection-highlight">
-                              {msg.text}
-                            </div>
-
-                            {/* Assistant tags and indicators */}
-                            {!isUser && msg.type && (
-                              <div className="pt-2 flex flex-wrap items-center gap-2">
-                                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
-                                  msg.type === 'rule'
-                                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                    : msg.type === 'ai' || msg.type === 'simulated_ai'
-                                      ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                                      : 'bg-rose-500/10 text-rose-400 border border-rose-550/20'
-                                }`}>
-                                  {msg.type === 'rule' 
-                                    ? `O(1) DIRECT KEY MATCH [${msg.triggerUsed}]`
-                                    : msg.type === 'ai' 
-                                      ? 'HYBRID GEMINI FALLBACK' 
-                                      : msg.type === 'simulated_ai'
-                                        ? 'SIMULATED AI FALLBACK' 
-                                        : 'GENERIC LOOP FALLBACK'}
+                            <div className="flex-1 space-y-2 min-w-0">
+                              {/* Header & Timestamp info info */}
+                              <div className="flex items-center justify-between text-[11px] text-neutral-500 font-medium">
+                                <span className="font-semibold text-neutral-300">
+                                  {isUser ? "You" : "Deterministic Intelligence"}
                                 </span>
-                                
-                                {msg.executionTimeMs !== undefined && (
-                                  <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    Latency: {msg.executionTimeMs}ms
-                                  </span>
-                                )}
+                                <span className="font-mono">
+                                  {msg.timestamp}
+                                </span>
                               </div>
-                            )}
+
+                              {/* Message text content */}
+                              <div className="text-sm leading-relaxed text-[#d1d5db] whitespace-pre-wrap">
+                                {msg.text}
+                              </div>
+
+                              {/* Assistant tags and indicators */}
+                              {!isUser && msg.type && (
+                                <div className="pt-3 flex flex-wrap items-center gap-2">
+                                  <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded ${
+                                    msg.type === 'rule'
+                                      ? 'bg-[#10A37F]/10 text-[#10A37F] border border-[#10A37F]/20'
+                                      : msg.type === 'ai' || msg.type === 'simulated_ai'
+                                        ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                        : 'bg-rose-500/10 text-rose-400 border border-rose-550/20'
+                                  }`}>
+                                    {msg.type === 'rule' 
+                                      ? `O(1) DIRECT MATCH [/${msg.triggerUsed}]`
+                                      : msg.type === 'ai' 
+                                        ? 'GEMINI BACKFILL CASCADE' 
+                                        : msg.type === 'simulated_ai'
+                                          ? 'SIMULATED AI HYBRID' 
+                                          : 'FALLBACK ROUTING'}
+                                  </span>
+                                  
+                                  {msg.executionTimeMs !== undefined && (
+                                    <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-neutral-500" />
+                                      {msg.executionTimeMs}ms
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
                     })}
 
                     {isLoading && (
-                      <div className="bg-[#171717] border border-[#2a2a2a] flex items-start gap-4 p-4 rounded-xl leading-relaxed">
-                        <div className="w-8 h-8 rounded-full bg-indigo-600/15 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
-                          <Cpu className="w-4 h-4 animate-spin text-indigo-400" />
-                        </div>
-                        <div className="space-y-2 flex-1">
-                          <span className="text-xs font-bold text-white block">Evaluating matching criteria...</span>
-                          <div className="flex gap-1 pt-1">
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce"></span>
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.2s]"></span>
-                            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0.4s]"></span>
+                      <div className="py-6 md:py-8 bg-gpt-assistant border-y border-gpt-border/10">
+                        <div className="max-w-3xl mx-auto px-4 md:px-6 flex items-start gap-4">
+                          <div className="w-7.5 h-7.5 rounded bg-gpt-green text-white flex items-center justify-center">
+                            <Cpu className="w-3.5 h-3.5 animate-spin" />
+                          </div>
+                          <div className="space-y-2 flex-1">
+                            <span className="text-xs font-semibold text-neutral-300 block">Parsing vocabulary indices...</span>
+                            <div className="flex gap-1.5 pt-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gpt-green animate-bounce"></span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-gpt-green animate-bounce [animation-delay:0.15s]"></span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-gpt-green animate-bounce [animation-delay:0.3s]"></span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -702,50 +733,52 @@ export default function App() {
                 ) : (
                   
                   /* TERMINAL STYLE PYTHON SHELLVIEW */
-                  <div className="bg-black/95 font-mono text-xs p-4 rounded-xl border border-[#2f2f2f] text-emerald-400 relative min-h-[380px] flex flex-col justify-between shadow-2xl">
-                    <div className="space-y-3.5 flex-1 overflow-y-auto custom-scrollbar mb-4">
-                      <div className="text-neutral-500 border-b border-neutral-900 pb-2 mb-3">
-                        Python 3.10 Build #84729 - Deterministic Shell Interface<br />
-                        Listening on live std_in buffer stream... Enter 'exit' to break.
-                      </div>
-
-                      {chatHistory.map((msg) => {
-                        if (msg.sender === 'user') {
-                          return (
-                            <div key={msg.id} className="text-neutral-200">
-                              <span className="text-indigo-400 font-bold mr-1.5">You:</span>
-                              <span>{msg.text}</span>
-                            </div>
-                          );
-                        } else if (msg.sender === 'bot') {
-                          return (
-                            <div key={msg.id} className="text-emerald-400 pl-3 border-l border-emerald-500/20 space-y-1">
-                              <div>{msg.text}</div>
-                              {msg.cleanInput && (
-                                <div className="text-[10px] text-neutral-500 flex flex-wrap gap-x-4 pt-1">
-                                  <span>[Normal]: "{msg.cleanInput}"</span>
-                                  <span>[Lookup]: {msg.type}</span>
-                                  {msg.matched && <span>[Hit]: {msg.triggerUsed}</span>}
-                                  {msg.executionTimeMs && <span>[Time]: {msg.executionTimeMs}ms</span>}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <div key={msg.id} className="text-amber-500 italic my-1.5">
-                              {msg.text}
-                            </div>
-                          );
-                        }
-                      })}
-
-                      {isLoading && (
-                        <div className="text-neutral-400 animate-pulse">
-                          <span>$ python parser.py --sanitize...</span>
+                  <div className="max-w-3xl mx-auto px-4 py-3">
+                    <div className="bg-black/95 font-mono text-xs p-4 rounded border border-gpt-border text-emerald-400 min-h-[380px] flex flex-col justify-between shadow-lg">
+                      <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar mb-4">
+                        <div className="text-neutral-500 border-b border-gpt-border/35 pb-2 mb-3">
+                          Python 3.10.12 - Rule-Based Interactive Shell Pipeline<br />
+                          Standard Input continuous listener active. Enter 'exit' to break.
                         </div>
-                      )}
-                      <div ref={terminalEndRef} />
+
+                        {chatHistory.map((msg) => {
+                          if (msg.sender === 'user') {
+                            return (
+                              <div key={msg.id} className="text-[#ececf1]">
+                                <span className="text-gpt-green font-bold mr-1.5">You:</span>
+                                <span>{msg.text}</span>
+                              </div>
+                            );
+                          } else if (msg.sender === 'bot') {
+                            return (
+                              <div key={msg.id} className="text-emerald-400 pl-3 border-l border-emerald-500/25 space-y-1">
+                                <div>{msg.text}</div>
+                                {msg.cleanInput && (
+                                  <div className="text-[10px] text-neutral-550 flex flex-wrap gap-x-4 pt-1">
+                                    <span>[Input]: "{msg.cleanInput}"</span>
+                                    <span>[Matched]: {msg.matched ? "Yes" : "No"}</span>
+                                    {msg.triggerUsed && <span>[Rule]: {msg.triggerUsed}</span>}
+                                    {msg.executionTimeMs && <span>[Latency]: {msg.executionTimeMs}ms</span>}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div key={msg.id} className="text-amber-500 italic my-1">
+                                {msg.text}
+                              </div>
+                            );
+                          }
+                        })}
+
+                        {isLoading && (
+                          <div className="text-neutral-500 animate-pulse">
+                            <span>$ python core_matching_engine.py --lookup...</span>
+                          </div>
+                        )}
+                        <div ref={terminalEndRef} />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -756,33 +789,33 @@ export default function App() {
               <AnimatePresence>
                 {isLoopTerminated && (
                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-rose-950/20 border border-rose-900/40 p-5 rounded-2xl mb-4 text-center space-y-3 shadow-inner shadow-rose-900/10"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="max-w-2xl mx-auto bg-rose-950/20 border border-rose-900/30 p-5 rounded mr-4 ml-4 text-center space-y-3 mb-4"
                   >
-                    <div className="inline-flex p-3 bg-rose-500/15 rounded-full text-rose-400 mb-1">
-                      <LogOut className="w-6 h-6" />
+                    <div className="inline-flex p-2 bg-rose-500/10 rounded-full text-rose-400 mb-1">
+                      <LogOut className="w-5 h-5" />
                     </div>
-                    <h3 className="text-md font-bold text-white">Interactive Loop Disconnected ('break' trigger)</h3>
-                    <p className="text-xs text-neutral-400 max-w-sm mx-auto leading-relaxed">
-                      An exit command has triggered the logic gate <code>break</code>. The infinite cycle is broken and standard inputs are blocked until reset.
+                    <h3 className="text-sm font-bold text-white">Execution Loop Terminated ('break' called)</h3>
+                    <p className="text-xs text-neutral-300 max-w-sm mx-auto leading-relaxed">
+                      Your exit command triggered the python execution exit gate. The standard input loop is frozen until restarted manually.
                     </p>
                     <button
                       onClick={handleRestartLoop}
-                      className="bg-rose-600 hover:bg-rose-500 hover:scale-[1.02] text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-md shadow-rose-500/10"
+                      className="bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs px-3.5 py-2 rounded transition cursor-pointer"
                     >
-                      Reset and Open standard loop cycle
+                      Reset and Restore Live Infinite Cycle
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
 
               {/* Chat Input form bar */}
-              <div className="space-y-3">
-                <div className="flex gap-2.5 items-center relative bg-[#171717] rounded-2xl border border-[#2f2f2f] p-1.5 shadow-xl">
+              <div className="max-w-3xl mx-auto w-full px-4 md:px-6 pt-3 pb-4">
+                <div className="flex gap-2.5 items-center relative bg-[#40414F] rounded-lg border border-[#565869] p-1.5 shadow-xl">
                   {selectedView === 'terminal' && (
-                    <span className="text-indigo-400 font-mono font-black select-none pl-3 text-sm">$</span>
+                    <span className="text-gpt-green font-mono font-bold select-none pl-3 text-sm">&gt;&gt;&gt;</span>
                   )}
                   
                   <input
@@ -795,26 +828,26 @@ export default function App() {
                     disabled={isLoopTerminated || isLoading}
                     placeholder={
                       isLoopTerminated 
-                        ? "Continuous loop has halted. Please restart to chat..." 
-                        : "Type message... (e.g. hello, bye, who are you, write 'exit' to break)..."
+                        ? "Interactive loop frozen. Click 'Reset' to resume..." 
+                        : "Type standard query... (e.g. hello, bye, who are you, write 'exit' to break)..."
                     }
-                    className="flex-1 bg-transparent font-mono text-sm inline-block focus:outline-none placeholder-neutral-500 text-white pl-3.5 pr-4 py-2.5 disabled:opacity-40"
+                    className="flex-1 bg-transparent font-sans text-sm focus:outline-none placeholder-neutral-400 text-white pl-3.5 pr-4 py-2.5 disabled:opacity-40"
                     id="central-text-input"
                   />
 
                   <button
                     onClick={() => handleSendMessage()}
                     disabled={isLoopTerminated || isLoading || !userInput.trim()}
-                    className="bg-[#ececec] text-[#171717] hover:bg-white disabled:bg-[#2f2f2f] disabled:text-neutral-500 p-2.5 rounded-xl transition cursor-pointer shrink-0"
+                    className="bg-gpt-green text-white hover:bg-[#0e8f6e] disabled:bg-transparent disabled:text-neutral-500 p-2.5 rounded transition cursor-pointer shrink-0"
                     id="submit-message-btn"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Subtext info */}
-                <span className="text-[10px] text-neutral-500 block text-center leading-normal">
-                  Project 1: Rule-Based Chatbot with linear input sanitization. Enter <strong>"exit"</strong> to break the execution loop.
+                <span className="text-[10px] text-neutral-500 block text-center leading-normal mt-2.5">
+                  Academic Prototype: Direct dictionary exact value matching. Use **"exit"** to terminate standard input stream loops.
                 </span>
               </div>
 
@@ -823,24 +856,24 @@ export default function App() {
 
         </div>
 
-        {/* Dynamic Trace footer panel (only when chat or shell is active) */}
+        {/* Trace and Strategy strategy footer bar */}
         {selectedView !== 'portfolio' && (
-          <footer className="border-t border-[#2f2f2f] bg-[#171717] px-4 py-3 flex flex-col md:flex-row md:items-center justify-between text-[11px] text-neutral-400 gap-3 shrink-0">
+          <footer className="border-t border-gpt-border bg-gpt-sidebar px-4 py-3 flex flex-col md:flex-row md:items-center justify-between text-[11px] text-neutral-400 gap-3 shrink-0 z-10">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-mono text-xs">O(1) Hash Map Matching Mode Enabled</span>
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-gpt-green animate-pulse" />
+              <span className="font-mono text-[10px]">Instant Hashed Hash-Map Parsing Activated</span>
             </div>
             
-            <div className="flex items-center gap-4 text-[10px] font-mono text-neutral-500">
+            <div className="flex items-center gap-4 text-[10px] font-mono">
               <div className="flex items-center gap-2">
-                <span>Hybrid Backfill strategy:</span>
+                <span className="text-neutral-500">Hybrid AI Cascades:</span>
                 <button
                   onClick={() => setHybridMode(!hybridMode)}
-                  className={`px-2 py-0.5 rounded cursor-pointer transition ${
-                    hybridMode ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
+                  className={`px-2 py-0.5 rounded cursor-pointer transition text-[9px] font-semibold ${
+                    hybridMode ? 'bg-[#10A37F]/10 text-[#10A37F] border border-[#10A37F]/20' : 'bg-neutral-800 text-neutral-400 border border-neutral-700'
                   }`}
                 >
-                  {hybridMode ? "ACTIVE (GEMINI)" : "OFF (FALLBACK ERROR)"}
+                  {hybridMode ? "ENABLED" : "DISABLED"}
                 </button>
               </div>
             </div>
@@ -849,62 +882,62 @@ export default function App() {
 
       </section>
 
-      {/* RIGHT DRAWER: Current Processing live Pipeline Trace */}
+      {/* RIGHT DRAWER: Live Processing Pipeline Trace */}
       {selectedView !== 'portfolio' && (
-        <aside className="w-80 shrink-0 bg-[#0d0d0d] border-l border-[#2f2f2f] p-4 hidden xl:flex flex-col gap-6 overflow-y-auto custom-scrollbar">
+        <aside className="w-80 shrink-0 bg-gpt-sidebar border-l border-gpt-border p-4 hidden xl:flex flex-col gap-5 overflow-y-auto custom-scrollbar">
           
           <div className="space-y-4">
-            <div className="pb-3 border-b border-[#212121]">
+            <div className="pb-2.5 border-b border-gpt-border">
               <h3 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider font-mono">
-                <Activity className="w-4 h-4 text-indigo-400" />
-                Processing Trace
+                <Activity className="w-4 h-4 text-gpt-green" />
+                Live Logic Flow
               </h3>
               <p className="text-[10px] text-neutral-500 mt-1">
-                Step-by-step logic pipeline parsing
+                Real-time exact string lookup progression
               </p>
             </div>
 
-            <div className="space-y-4 pt-1">
+            <div className="space-y-4.5 pt-1">
               {lastPipeline.map((step, idx) => (
-                <div key={idx} className="flex gap-2.5 relative pb-1">
+                <div key={idx} className="flex gap-2.5 relative pb-0.5">
                   {idx < lastPipeline.length - 1 && (
-                    <div className="absolute left-3 top-6 w-[1px] h-9 bg-[#212121]"></div>
+                    <div className="absolute left-3 top-6 w-[1px] h-9 bg-gpt-border"></div>
                   )}
 
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 ${
+                  <div className={`w-5.5 h-5.5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 ${
                     step.status === 'success'
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      ? 'bg-gpt-green/10 text-gpt-green border border-gpt-green/20'
                       : step.status === 'error'
-                        ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                        ? 'bg-rose-500/10 text-rose-450 border border-rose-500/20'
                         : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
                   }`}>
                     {idx + 1}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1.5">
+                    <div className="flex items-center justify-between gap-1">
                       <span className="text-[11px] font-semibold text-neutral-300">{step.name}</span>
-                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                      <span className={`text-[9px] font-mono px-1 rounded ${
                         step.status === 'success'
-                          ? 'text-emerald-400 bg-emerald-500/5 font-bold'
+                          ? 'text-gpt-green bg-gpt-green/5'
                           : step.status === 'error'
                             ? 'text-rose-400 bg-rose-500/5'
-                            : 'text-neutral-400 bg-[#171717]'
+                            : 'text-neutral-400 bg-neutral-800'
                       }`}>
                         {step.value}
                       </span>
                     </div>
-                    <p className="text-[10px] text-neutral-500 mt-1.5 leading-normal">{step.description}</p>
+                    <p className="text-[10px] text-neutral-500 mt-1.5 leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-[#171717] border border-[#2f2f2f] rounded-xl p-3.5 space-y-2 text-xs">
-            <h4 className="text-[10px] font-bold text-neutral-400 uppercase font-mono tracking-wider">Concept Spotlight</h4>
-            <p className="text-[11px] text-neutral-400 leading-normal">
-              Unlike <code>if/elif</code> ladder structures which require sequentially testing every rule ($O(n)$ complexity), the Python dictionary lookup resolves keys instantly using hashed indices ($O(1)$ constant time), protecting system scale efficiency.
+          <div className="bg-[#121214] border border-gpt-border rounded-md p-3.5 space-y-2 text-xs">
+            <h4 className="text-[10px] font-bold text-neutral-400 uppercase font-mono tracking-wider">Hash Map vs. Linear Search</h4>
+            <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
+              Sequential <code>if/elif</code> ladder matrices scale lineally ($O(n)$ latency relative to rules size). Python dictionary indices lookup triggers directly in $O(1)$ constant time regardless of size, saving computing overhead instantly.
             </p>
           </div>
 
